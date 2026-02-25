@@ -49,8 +49,3 @@ This automatically discovers:
 - `/mnt/glance`
 - `/mnt/glance-unity`
 - Any other mounts under `/mnt/glance*`
-
-## Author
-
-Created by Claude Code (2026-02-12)
-Version: 1.0
