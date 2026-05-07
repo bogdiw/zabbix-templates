@@ -1,0 +1,56 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 8ee6419dc5d24157a91b1a78f5d3b340
+      name: Templates/Storage
+  templates:
+    - uuid: 4d0ac98c65a24961899c367c7d6ad0fe
+      template: 'Proxmox Backup DDBoost Monitoring'
+      name: 'Proxmox Backup DDBoost Monitoring'
+      groups:
+        - name: Templates/Storage
+      discovery_rules:
+        - uuid: c3a05690698e4d26b984f94aeee2dc09
+          name: 'Proxmox VM Backup Discovery'
+          type: ZABBIX_ACTIVE
+          key: pve.ddboost.backup.discovery
+          delay: 1h
+          item_prototypes:
+            - uuid: 79efc4b5884141e18ee9a0599bb6478c
+              name: 'VM {#VMID}: Backup Age'
+              key: 'pve.ddboost.backup.age[{#VMID}]'
+              delay: 10m
+              history: 7d
+              units: hours
+              trigger_prototypes:
+                - uuid: 1ee21de095fd4ee8b06ba17d2150a838
+                  expression: 'last(/Proxmox Backup DDBoost Monitoring/pve.ddboost.backup.age[{#VMID}])>48'
+                  name: 'VM {#VMID}: Backup older than 48 hours'
+                  priority: WARNING
+            - uuid: 549df2f62ece4999b714f78c0e7f5353
+              name: 'VM {#VMID}: Backup Status'
+              key: 'pve.ddboost.backup.status[{#VMID}]'
+              delay: 10m
+              history: 7d
+              valuemap:
+                name: 'Proxmox Backup Status'
+              trigger_prototypes:
+                - uuid: 0e3f6d1e42f042dd8c364da033901f22
+                  expression: 'last(/Proxmox Backup DDBoost Monitoring/pve.ddboost.backup.status[{#VMID}])=0'
+                  name: 'VM {#VMID}: Backup failed'
+                  priority: WARNING
+                - uuid: 23316660f5a74bf6af0dbe1fd3a7575e
+                  expression: 'last(/Proxmox Backup DDBoost Monitoring/pve.ddboost.backup.status[{#VMID}])=2'
+                  name: 'VM {#VMID}: No backup found'
+                  priority: AVERAGE
+      valuemaps:
+        - uuid: a2e0ffd57aa0414495abfcb170fa8ea0
+          name: 'Proxmox Backup Status'
+          mappings:
+            - value: '0'
+              newvalue: Failed
+            - value: '1'
+              newvalue: Success
+            - value: '2'
+              newvalue: 'No Backup'
+

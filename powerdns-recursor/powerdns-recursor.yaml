@@ -1,0 +1,121 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: 60277ddf290c4924b4e4977b8b409f27
+      template: 'PowerDNS Recursor by Zabbix agent'
+      name: 'PowerDNS Recursor by Zabbix agent'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: bf950a2611c643729246f801142a58d8
+          name: 'PowerDNS Recursor: Outgoing queries'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[all-outqueries]'
+          units: qps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: 37b5c02a695a4274b17c5265c1adffb7
+          name: 'PowerDNS Recursor: Answers slow (>1s)'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[answers-slow]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+          triggers:
+            - uuid: 7d45aafc5cde4744b91e11bfa08945bd
+              expression: 'min(/PowerDNS Recursor by Zabbix agent/pdns.rec.get[answers-slow],5m)>0'
+              name: 'PowerDNS Recursor: Slow answers detected (>1s)'
+              priority: WARNING
+        - uuid: 846bec291f704ea4a98f16b38f3e4438
+          name: 'PowerDNS Recursor: Answers 0-1ms'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[answers0-1]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: 0df427e4eee34ebe8a35ff3a5cb3063c
+          name: 'PowerDNS Recursor: Answers 1-10ms'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[answers1-10]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: ca748265995a47cc9eb63a84d37cac0c
+          name: 'PowerDNS Recursor: Answers 10-100ms'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[answers10-100]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: 7ce85e03d01445d8b17f9e07113cfd84
+          name: 'PowerDNS Recursor: Answers 100-1000ms'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[answers100-1000]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: ac9a969071f2442195f64bbb2ee43a31
+          name: 'PowerDNS Recursor: Cache entries'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[cache-entries]'
+        - uuid: d6ccb7754f4048379b4de114169fe4bf
+          name: 'PowerDNS Recursor: Cache hits'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[cache-hits]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: 87b1e3dcfa8c4f43bdb46725f24dda36
+          name: 'PowerDNS Recursor: Cache misses'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[cache-misses]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: ce09c1ccd21f45d980ef36f37886d647
+          name: 'PowerDNS Recursor: Concurrent queries'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[concurrent-queries]'
+        - uuid: aa7e007ec4bc40a195e9fec4fb30abc0
+          name: 'PowerDNS Recursor: NOERROR answers'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[noerror-answers]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: be8a4ab3e5084c7a89af0f883db0f077
+          name: 'PowerDNS Recursor: NXDOMAIN answers'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[nxdomain-answers]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: 4fdf80a9666343aaabf944d4fc268832
+          name: 'PowerDNS Recursor: Questions'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[questions]'
+          units: qps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+        - uuid: 852545e053c249ff82633239c50e9e9a
+          name: 'PowerDNS Recursor: Servfail answers'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[servfail-answers]'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+          triggers:
+            - uuid: d7353ed4f9a84a0abcdbed9e6b42e62f
+              expression: 'min(/PowerDNS Recursor by Zabbix agent/pdns.rec.get[servfail-answers],5m)>5'
+              name: 'PowerDNS Recursor: High servfail rate (>5/min for 5m)'
+              priority: AVERAGE
+        - uuid: fd1bed714f9c4fb888e2399aa57aa379
+          name: 'PowerDNS Recursor: Uptime'
+          type: ZABBIX_ACTIVE
+          key: 'pdns.rec.get[uptime]'
+          units: s
+          triggers:
+            - uuid: c48f977d8d7f4b8b809f58c58edff7f1
+              expression: 'last(/PowerDNS Recursor by Zabbix agent/pdns.rec.get[uptime])<600'
+              name: 'PowerDNS Recursor: Has been restarted (uptime < 10m)'
+              priority: INFO
+              manual_close: 'YES'
+            - uuid: ca093aad6d474c2c98263f3bfee878f9
+              expression: 'nodata(/PowerDNS Recursor by Zabbix agent/pdns.rec.get[uptime],5m)=1'
+              name: 'PowerDNS Recursor: Service is down (no data for 5m)'
+              priority: HIGH
+              manual_close: 'YES'
+

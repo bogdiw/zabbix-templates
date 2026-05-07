@@ -1,0 +1,123 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: 9a38ee95dd16489ca967093e9676084d
+      template: 'Grafana by HTTP'
+      name: 'Grafana by HTTP'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 0468831343bb40b3ae17b1ee2088e7a5
+          name: 'Grafana: Database status'
+          type: DEPENDENT
+          key: grafana.health.db
+          value_type: TEXT
+          description: 'Grafana database health status (ok/error)'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.database
+          master_item:
+            key: grafana.health.get
+          triggers:
+            - uuid: e00bde76265b4c5088ad89cee3495550
+              expression: 'last(/Grafana by HTTP/grafana.health.db)<>"ok"'
+              name: 'Grafana: Database is unhealthy'
+              priority: HIGH
+              manual_close: 'YES'
+            - uuid: b2dd7c43d6c74b21a53d33c1116690a8
+              expression: 'nodata(/Grafana by HTTP/grafana.health.db,5m)=1'
+              name: 'Grafana: No data received for 5 minutes'
+              priority: AVERAGE
+              manual_close: 'YES'
+        - uuid: d175e8d65c944a9190225b20a60c813a
+          name: 'Grafana: Get health'
+          type: HTTP_AGENT
+          key: grafana.health.get
+          history: '0'
+          value_type: TEXT
+          authtype: BASIC
+          username: '{$GRAFANA.USER}'
+          password: '{$GRAFANA.PASSWORD}'
+          description: 'Master item: fetches Grafana /api/health JSON'
+          url: '{$GRAFANA.SCHEME}://{$GRAFANA.HOST}:{$GRAFANA.PORT}/api/health'
+        - uuid: 28b87933bf63419c94598874cc69cb0b
+          name: 'Grafana: Service status'
+          type: DEPENDENT
+          key: grafana.health.status
+          description: '1 = healthy, 0 = unhealthy. Uses JSONPath existence check.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.database
+            - type: REGEX
+              parameters:
+                - ^ok$
+                - '1'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '0'
+          master_item:
+            key: grafana.health.get
+        - uuid: 74c86f93526f46d798eed2b9fb5e64ca
+          name: 'Grafana: Version'
+          type: DEPENDENT
+          key: grafana.version
+          value_type: TEXT
+          description: 'Grafana version'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.version
+          master_item:
+            key: grafana.health.get
+          triggers:
+            - uuid: 78640c192dd74382bbdad9ef5709b483
+              expression: 'last(/Grafana by HTTP/grafana.version,#1)<>last(/Grafana by HTTP/grafana.version,#2) and length(last(/Grafana by HTTP/grafana.version))>0'
+              name: 'Grafana: Version has changed'
+              priority: INFO
+              manual_close: 'YES'
+        - uuid: aea17ce73fdb4bf3809c1c9b9ae12fdd
+          name: 'Grafana: Service response time'
+          type: SIMPLE
+          key: 'net.tcp.service.perf[https,{$GRAFANA.HOST},{$GRAFANA.PORT}]'
+          value_type: FLOAT
+          units: s
+          description: 'TCP response time to Grafana port'
+          triggers:
+            - uuid: 5d75f969293a4a3f9131f789cdbbbb0c
+              expression: 'min(/Grafana by HTTP/net.tcp.service.perf[https,{$GRAFANA.HOST},{$GRAFANA.PORT}],5m)>{$GRAFANA.RESPONSE_TIME.MAX.WARN}'
+              name: 'Grafana: High response time (>{$GRAFANA.RESPONSE_TIME.MAX.WARN}s for 5m)'
+              priority: WARNING
+              manual_close: 'YES'
+        - uuid: f02600bd5ec447279420111b99ae9b3a
+          name: 'Grafana: Service availability'
+          type: SIMPLE
+          key: 'net.tcp.service[https,{$GRAFANA.HOST},{$GRAFANA.PORT}]'
+          description: '1 = port reachable, 0 = down'
+          triggers:
+            - uuid: 7823f75af2a0484e8fbebcac3dd335f4
+              expression: 'last(/Grafana by HTTP/net.tcp.service[https,{$GRAFANA.HOST},{$GRAFANA.PORT}])=0'
+              name: 'Grafana: Service is down'
+              priority: HIGH
+              manual_close: 'YES'
+      macros:
+        - macro: '{$GRAFANA.HOST}'
+          value: '<SET GRAFANA HOST>'
+          description: 'Grafana hostname or IP'
+        - macro: '{$GRAFANA.PASSWORD}'
+          description: 'Grafana API password (optional)'
+        - macro: '{$GRAFANA.PORT}'
+          value: '3000'
+          description: 'Grafana HTTP port'
+        - macro: '{$GRAFANA.RESPONSE_TIME.MAX.WARN}'
+          value: '5'
+          description: 'Max response time warning threshold (seconds)'
+        - macro: '{$GRAFANA.SCHEME}'
+          value: https
+          description: 'http or https'
+        - macro: '{$GRAFANA.USER}'
+          description: 'Grafana API user (optional)'
+

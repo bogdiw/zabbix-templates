@@ -1,0 +1,203 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: c227976166ef4bbcbf086ace0c7ad022
+      template: 'PowerDNS Authoritative by HTTP'
+      name: 'PowerDNS Authoritative by HTTP'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 8b7b01f2f3364736a592f700dc611d48
+          name: 'PowerDNS: Backend latency'
+          type: DEPENDENT
+          key: pdns.auth.backend.latency
+          value_type: FLOAT
+          units: us
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="backend-latency")].value.first()'
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: 95f8c0829d4d4fa4bd04311deb928481
+          name: 'PowerDNS: Backend queries'
+          type: DEPENDENT
+          key: pdns.auth.backend.queries
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="backend-queries")].value.first()'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: dbb5efa14f124a32a25c5168b2ee2722
+          name: 'PowerDNS: Cache hits'
+          type: DEPENDENT
+          key: pdns.auth.cache.hits
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="zone-cache-hit")].value.first()'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: aee9ce183b264acf8ce736d9ebaff6fc
+          name: 'PowerDNS: Cache latency'
+          type: DEPENDENT
+          key: pdns.auth.cache.latency
+          value_type: FLOAT
+          units: us
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="cache-latency")].value.first()'
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: 559ec4b7b79a43dd9cc0e9081eff575a
+          name: 'PowerDNS: Cache misses'
+          type: DEPENDENT
+          key: pdns.auth.cache.misses
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="zone-cache-miss")].value.first()'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: 03a199302c34420088ce3ecdd6157343
+          name: 'PowerDNS: Corrupt packets'
+          type: DEPENDENT
+          key: pdns.auth.corrupt
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="corrupt-packets")].value.first()'
+          master_item:
+            key: pdns.auth.stats.get
+          triggers:
+            - uuid: 4db3d20627df4fffba44bcc541f1e8f8
+              expression: 'last(/PowerDNS Authoritative by HTTP/pdns.auth.corrupt)>0'
+              name: 'PowerDNS: Corrupt packets detected'
+              priority: AVERAGE
+        - uuid: b4c14525fd5f4a849f32ff1d78ebdb3a
+          name: 'PowerDNS: Security status'
+          type: DEPENDENT
+          key: pdns.auth.security
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="security-status")].value.first()'
+          master_item:
+            key: pdns.auth.stats.get
+          triggers:
+            - uuid: 7089c7ad60564ecc8a1f27e98e893d7d
+              expression: 'last(/PowerDNS Authoritative by HTTP/pdns.auth.security)<>0'
+              name: 'PowerDNS: Security status is not OK'
+              priority: HIGH
+        - uuid: 48d73e9a8eea4c65aeb85aaac6c4d1db
+          name: 'PowerDNS: Servfail packets'
+          type: DEPENDENT
+          key: pdns.auth.servfail
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="servfail-packets")].value.first()'
+          master_item:
+            key: pdns.auth.stats.get
+          triggers:
+            - uuid: 3021f6c49c144f6cbf4dcd285335afd9
+              expression: 'last(/PowerDNS Authoritative by HTTP/pdns.auth.servfail)>0'
+              name: 'PowerDNS: Servfail packets detected'
+              priority: WARNING
+        - uuid: d5d76005d1ac490b9120aa5353c6f6b6
+          name: 'PowerDNS: Get statistics'
+          type: HTTP_AGENT
+          key: pdns.auth.stats.get
+          history: '0'
+          value_type: TEXT
+          description: 'Master item: fetches all PowerDNS auth statistics'
+          url: 'http://{$PDNS.API.HOST}:{$PDNS.API.PORT}/api/v1/servers/localhost/statistics'
+          headers:
+            - name: X-API-Key
+              value: '{$PDNS.API.KEY}'
+        - uuid: eff94963a04145ca96d660db1b490a99
+          name: 'PowerDNS: TCP queries'
+          type: DEPENDENT
+          key: pdns.auth.tcp.queries
+          units: qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="tcp-queries")].value.first()'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: 785b58e95aa74e4a9ecba1bd25ba2f61
+          name: 'PowerDNS: Timed out packets'
+          type: DEPENDENT
+          key: pdns.auth.timedout
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="timedout-packets")].value.first()'
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: 2f8c86edc2fe422dbceef4670864c5ef
+          name: 'PowerDNS: UDP answers'
+          type: DEPENDENT
+          key: pdns.auth.udp.answers
+          units: qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="udp-answers")].value.first()'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: e95ad3bcb9f54099bb03171361cb6a11
+          name: 'PowerDNS: UDP queries'
+          type: DEPENDENT
+          key: pdns.auth.udp.queries
+          units: qps
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="udp-queries")].value.first()'
+            - type: CHANGE_PER_SECOND
+          master_item:
+            key: pdns.auth.stats.get
+        - uuid: bdcbc317016f446e805f1bb493887856
+          name: 'PowerDNS: Uptime'
+          type: DEPENDENT
+          key: pdns.auth.uptime
+          units: s
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$[?(@.name=="uptime")].value.first()'
+          master_item:
+            key: pdns.auth.stats.get
+          triggers:
+            - uuid: 45fff8fa0e004c949c4a0e94750c5811
+              expression: 'last(/PowerDNS Authoritative by HTTP/pdns.auth.uptime)<600'
+              name: 'PowerDNS: Has been restarted (uptime < 10m)'
+              priority: INFO
+              manual_close: 'YES'
+            - uuid: f5b89553ad044b17a7de235f180ef529
+              expression: 'nodata(/PowerDNS Authoritative by HTTP/pdns.auth.uptime,5m)=1'
+              name: 'PowerDNS: Service is down (no data for 5m)'
+              priority: HIGH
+              manual_close: 'YES'
+      macros:
+        - macro: '{$PDNS.API.HOST}'
+          value: localhost
+          description: 'PowerDNS API host'
+        - macro: '{$PDNS.API.KEY}'
+          description: 'PowerDNS API key'
+        - macro: '{$PDNS.API.PORT}'
+          value: '8081'
+          description: 'PowerDNS API port'
+
