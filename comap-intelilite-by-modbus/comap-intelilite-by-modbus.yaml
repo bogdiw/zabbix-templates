@@ -1,0 +1,29 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 4f3a8b2c1d5e4a7b9c8d6e2f1a0b3c4d
+      name: Templates/HVAC
+  templates:
+    - uuid: 7c2e9a4b3f8d4c5a8e9d6f1b2a3c4e5f
+      template: 'ComAp InteliLite by Modbus'
+      name: 'ComAp InteliLite by Modbus'
+      description: |
+        STUB. ComAp InteliLite NT generator controller via Modbus TCP through IB-Lite module.
+
+        Register layout is configuration-specific (depends on programmed inputs/outputs and on the optional
+        "User Modbus" custom register block). Cannot be populated until the gen-set commissioner provides
+        either an InteliConfig/LiteEdit configuration export or a User-Modbus register list.
+
+        IB-Lite endpoint: tcp://10.1.109.53:502, slave_id depends on commissioning. Web UI at
+        http://10.1.109.53/sp_index.htm. IB-Lite caps at 2 web + 2 Modbus clients simultaneously.
+
+        Until populated: use Template Module ICMP Ping for availability only.
+      groups:
+        - name: Templates/HVAC
+      macros:
+        - macro: '{$MODBUS.HOST}'
+          value: 'tcp://10.1.109.53:502'
+          description: 'Modbus TCP endpoint URL (IB-Lite)'
+        - macro: '{$MODBUS.SLAVE}'
+          value: '1'
+          description: 'Modbus unit ID — confirm with commissioner'

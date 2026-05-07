@@ -1,0 +1,251 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+  - uuid: 5713277a96634c65ba069a0f70dc20c4
+    name: Templates/HVAC
+  templates:
+  - uuid: 61a4e26ad2c6420db07c073ab7c8ff93
+    template: HPE Aruba Instant On 1830 by SNMP
+    name: HPE Aruba Instant On 1830 by SNMP
+    description: HPE Aruba Instant On 1830 (JL814A and family) via SNMPv2c. Generic IF-MIB + SNMPv2-MIB; no HPE proprietary
+      OIDs (Instant On line lacks public CPU/temp MIB). Set {$SNMP_COMMUNITY}.
+    groups:
+    - name: Templates/HVAC
+    items:
+    - uuid: c4954c02663d4a58807512450ecadd5c
+      name: 'System: Description'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.1.0
+      key: system.descr
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: network
+      - tag: vendor
+        value: hpe
+    - uuid: 9c09d71911794847a1c26da7f0eba432
+      name: 'System: Object ID'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.2.0
+      key: system.objectid
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: network
+      - tag: vendor
+        value: hpe
+    - uuid: 31dd2b9ad68e4402b869c2ca8e96abb5
+      name: 'System: Uptime'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.3.0
+      key: system.uptime
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: network
+      - tag: vendor
+        value: hpe
+      units: uptime
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.01'
+    - uuid: 6a504eb13e9c47fbb313cec384c00b9e
+      name: 'System: Contact'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.4.0
+      key: system.contact
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: network
+      - tag: vendor
+        value: hpe
+    - uuid: c5ec6835a0c6492184dfbe7b36d976ee
+      name: 'System: Name'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.5.0
+      key: system.name
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: network
+      - tag: vendor
+        value: hpe
+    - uuid: 4b2a175164864eb1847f0b94b63d2156
+      name: 'System: Location'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.6.0
+      key: system.location
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: network
+      - tag: vendor
+        value: hpe
+    - uuid: c7d973647c73459c8e99d13f29f36632
+      name: 'Network: Interface count'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.2.1.0
+      key: net.if.count
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: network
+      - tag: vendor
+        value: hpe
+    discovery_rules:
+    - uuid: 6542d474259c4f37b65fd42109cd6913
+      name: Network interfaces discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#IFNAME},1.3.6.1.2.1.31.1.1.1.1]
+      key: net.if.discovery
+      delay: 5m
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#IFNAME}'
+          value: ^(lo|null|sit\d+)$
+          operator: NOT_MATCHES_REGEX
+          formulaid: A
+      item_prototypes:
+      - uuid: 00fb4e8baafc443da5f9b4eec768853f
+        name: 'Interface {#IFNAME}: Operational status'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.2.1.2.2.1.8.{#SNMPINDEX}
+        key: net.if.status[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: '0'
+        value_type: UNSIGNED
+        valuemap:
+          name: IF-MIB ifOperStatus
+        tags:
+        - tag: class
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+        trigger_prototypes:
+        - uuid: fa48ab83eed74bd19e3df467f4e83668
+          expression: last(/HPE Aruba Instant On 1830 by SNMP/net.if.status[{#SNMPINDEX}])=2 and last(/HPE Aruba Instant On
+            1830 by SNMP/net.if.adminstatus[{#SNMPINDEX}])=1
+          name: Interface {#IFNAME} is down on {HOST.NAME}
+          priority: AVERAGE
+      - uuid: 305a5e8c8c7a4f20b2c547bd87d1617a
+        name: 'Interface {#IFNAME}: Admin status'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.2.1.2.2.1.7.{#SNMPINDEX}
+        key: net.if.adminstatus[{#SNMPINDEX}]
+        delay: 5m
+        history: 31d
+        trends: '0'
+        value_type: UNSIGNED
+        valuemap:
+          name: IF-MIB ifAdminStatus
+        tags:
+        - tag: class
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: fdf1db04f482431e938bf50eb9c197b1
+        name: 'Interface {#IFNAME}: In bits/s'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.2.1.31.1.1.1.6.{#SNMPINDEX}
+        key: net.if.in[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: bps
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        tags:
+        - tag: class
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: 268d9dd5434f4d2582a33159aa606c47
+        name: 'Interface {#IFNAME}: Out bits/s'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.2.1.31.1.1.1.10.{#SNMPINDEX}
+        key: net.if.out[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: bps
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        tags:
+        - tag: class
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+    valuemaps:
+    - uuid: 3e484e03db354f7da09e47525f1da295
+      name: IF-MIB ifOperStatus
+      mappings:
+      - value: '1'
+        newvalue: up
+      - value: '2'
+        newvalue: down
+      - value: '3'
+        newvalue: testing
+      - value: '4'
+        newvalue: unknown
+      - value: '5'
+        newvalue: dormant
+      - value: '6'
+        newvalue: notPresent
+      - value: '7'
+        newvalue: lowerLayerDown
+    - uuid: fec61bbae35247b0addef1303a42c94b
+      name: IF-MIB ifAdminStatus
+      mappings:
+      - value: '1'
+        newvalue: up
+      - value: '2'
+        newvalue: down
+      - value: '3'
+        newvalue: testing
+    macros:
+    - macro: '{$SNMP_COMMUNITY}'
+      value: public
+      description: SNMPv2c community
+  triggers:
+  - uuid: a16fdeb91b914060b1848e54a693705c
+    expression: last(/HPE Aruba Instant On 1830 by SNMP/system.uptime)<10m
+    name: Switch was restarted on {HOST.NAME}
+    priority: INFO
+

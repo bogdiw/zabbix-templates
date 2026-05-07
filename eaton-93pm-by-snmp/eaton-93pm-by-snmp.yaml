@@ -1,0 +1,725 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+  - uuid: c6b56fa3eefd43a0a252075ffe05bed4
+    name: Templates/HVAC
+  templates:
+  - uuid: 102e7227f5d34c00bb1679cec2d148de
+    template: Eaton 93PM by SNMP
+    name: Eaton 93PM by SNMP
+    description: Eaton 93PM-G2 (and other XUPS-MIB-compatible UPS) via SNMPv2c. Mirror of cloudxedge Telegraf XUPS field set,
+      validated against ups-a-pl/ups-b-pl @ Brazi.
+    groups:
+    - name: Templates/HVAC
+    items:
+    - uuid: 402d372ebc1e4a0db604c205b29b02b8
+      name: 'UPS: Manufacturer'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.1.1.0
+      key: ups.manufacturer
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: c7ec17840c0648ba961a5747fa2ab517
+      name: 'UPS: Model'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.1.2.0
+      key: ups.model
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: fdec56a9f7db481d91d94e5ff766927a
+      name: 'UPS: Firmware version'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.1.3.0
+      key: ups.fw_version
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: f6d5e512115c44889e154919bfb8212f
+      name: 'UPS: OEM code'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.1.4.0
+      key: ups.oem_code
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: c8fc792c03b749a99782019a9b998b2c
+      name: 'UPS Battery: Runtime'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.2.1.0
+      key: ups.battery.runtime_s
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: s
+    - uuid: dbdf6d937c744700bedc3e5553cd7920
+      name: 'UPS Battery: Voltage'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.2.2.0
+      key: ups.battery.voltage_v
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: V
+    - uuid: 35c65ea7709d424e931ad2ef1ce30b98
+      name: 'UPS Battery: Current'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.2.3.0
+      key: ups.battery.current_a
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: A
+    - uuid: 7cc86aa6c1ff4565a6fb7bf1290a04ce
+      name: 'UPS Battery: Capacity'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.2.4.0
+      key: ups.battery.capacity_pct
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: '%'
+    - uuid: b3e9b81fa41444baada95264d5d94663
+      name: 'UPS Battery: ABM status'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.2.5.0
+      key: ups.battery.abm_status
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      valuemap:
+        name: Eaton XUPS battery ABM status
+    - uuid: f10c8325b0af486eb4c18c00b02b4bdd
+      name: 'UPS Input: Frequency'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.3.1.0
+      key: ups.input.frequency_dhz
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: Hz
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 2d8aa7c171434a61bbf4df92ffa9bf24
+      name: 'UPS Input: Line deviations'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.3.2.0
+      key: ups.input.line_bads
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: adf59ad66f284e08b59ba6e4862bdc9f
+      name: 'UPS Input: Number of phases'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.3.3.0
+      key: ups.input.num_phases
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: 5430c8db0d0d42dd83539e28e4cda98d
+      name: 'UPS Input: Source'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.3.5.0
+      key: ups.input.source
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      valuemap:
+        name: Eaton XUPS input source
+    - uuid: be60675a2bce4a66822d624975fc0bbd
+      name: 'UPS Output: Load'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.4.1.0
+      key: ups.output.load_pct
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: '%'
+    - uuid: 49d6bd4ee92d4095a90e2ae1eb85f203
+      name: 'UPS Output: Frequency'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.4.2.0
+      key: ups.output.frequency_dhz
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: Hz
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: d07d78215c82480eaa8155547385a6c2
+      name: 'UPS Output: Number of phases'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.4.3.0
+      key: ups.output.num_phases
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: 22816aad9cc64dd8a1c54328347872cd
+      name: 'UPS Output: Power source'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.4.5.0
+      key: ups.output.source
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      valuemap:
+        name: Eaton XUPS output source
+    - uuid: 53f086ba9164452f8d4d87736ced0c50
+      name: 'UPS Bypass: Frequency'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.5.1.0
+      key: ups.bypass.frequency_dhz
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: Hz
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 09ce402d61844f69a0cd53c8ebcac4c8
+      name: 'UPS Bypass: Number of phases'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.5.2.0
+      key: ups.bypass.num_phases
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: 57a913c05f52472087c661669cdd2f6d
+      name: 'UPS Env: Ambient temperature'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.6.1.0
+      key: ups.env.ambient_temp
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: "\xB0C"
+    - uuid: f7a887686e014b7b92dc3de784daea9a
+      name: 'UPS Env: Ambient humidity'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.6.4.0
+      key: ups.env.ambient_humidity
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: '%'
+    - uuid: f29c76fa0ca844118be0106bc13e3228
+      name: 'UPS Alarm: Active alarms'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.7.1.0
+      key: ups.alarm.active_count
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: 2e5e5c2bdf6f49f5808852df105e8296
+      name: 'UPS Alarm: Event count'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.7.18.0
+      key: ups.alarm.event_count
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    - uuid: e64cd93255074b7484d4062678c1fd77
+      name: 'UPS Test: Battery test result'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.8.2.0
+      key: ups.test.battery_status
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      valuemap:
+        name: Eaton XUPS battery test status
+    - uuid: bf043470ec36411b94a696d3a9873372
+      name: 'UPS Config: Output voltage'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.10.1.0
+      key: ups.config.output_voltage
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: V
+    - uuid: 549af28234f84442aa6fdf6eab977cd3
+      name: 'UPS Config: Output rated W'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.10.3.0
+      key: ups.config.output_watts
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+      units: W
+    - uuid: 106fd2661e694aef9ebfc15d3f68ccf1
+      name: 'UPS Topology: Type'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.534.1.13.1.0
+      key: ups.topology.type
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: ups
+      - tag: vendor
+        value: eaton
+    discovery_rules:
+    - uuid: baa856b50f2a4575bab9bcf0b31748d3
+      name: Input phases discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#PHASE},1.3.6.1.4.1.534.1.3.4.1.1]
+      key: ups.input.phase.discovery
+      delay: 5m
+      item_prototypes:
+      - uuid: c5013bc6d50b4fbdaa03708d6b96fb64
+        name: 'Input phase {#PHASE}: Voltage'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.3.4.1.2.{#SNMPINDEX}
+        key: ups.input.phase.voltage_v[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: V
+        tags:
+        - tag: class
+          value: ups
+        - tag: vendor
+          value: eaton
+        - tag: phase
+          value: '{#PHASE}'
+      - uuid: a97af6e9634e4b99a4a54862622f2661
+        name: 'Input phase {#PHASE}: Current'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.3.4.1.3.{#SNMPINDEX}
+        key: ups.input.phase.current_a[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: A
+        tags:
+        - tag: class
+          value: ups
+        - tag: vendor
+          value: eaton
+        - tag: phase
+          value: '{#PHASE}'
+      - uuid: cf19d09e09cb4e75b0939450733d3959
+        name: 'Input phase {#PHASE}: Active power'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.3.4.1.4.{#SNMPINDEX}
+        key: ups.input.phase.watts_w[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: UNSIGNED
+        units: W
+        tags:
+        - tag: class
+          value: ups
+        - tag: vendor
+          value: eaton
+        - tag: phase
+          value: '{#PHASE}'
+    - uuid: c9b7d2711f154bbf9b388503edd1ee35
+      name: Output phases discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#PHASE},1.3.6.1.4.1.534.1.4.4.1.1]
+      key: ups.output.phase.discovery
+      delay: 5m
+      item_prototypes:
+      - uuid: cf8f1b264c6940ea8ca649c3acf6f1b8
+        name: 'Output phase {#PHASE}: Voltage'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.4.4.1.2.{#SNMPINDEX}
+        key: ups.output.phase.voltage_v[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: V
+        tags:
+        - tag: class
+          value: ups
+        - tag: vendor
+          value: eaton
+        - tag: phase
+          value: '{#PHASE}'
+      - uuid: b6b6366ce17d4242941101b8f47e3f75
+        name: 'Output phase {#PHASE}: Current'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.4.4.1.3.{#SNMPINDEX}
+        key: ups.output.phase.current_a[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: A
+        tags:
+        - tag: class
+          value: ups
+        - tag: vendor
+          value: eaton
+        - tag: phase
+          value: '{#PHASE}'
+      - uuid: fada03e5869f40139da23dc3c78ccc1c
+        name: 'Output phase {#PHASE}: Active power'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.4.4.1.4.{#SNMPINDEX}
+        key: ups.output.phase.watts_w[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: UNSIGNED
+        units: W
+        tags:
+        - tag: class
+          value: ups
+        - tag: vendor
+          value: eaton
+        - tag: phase
+          value: '{#PHASE}'
+    - uuid: efcd8ebc255a465bb045b225d5ab18b9
+      name: Bypass phases discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#PHASE},1.3.6.1.4.1.534.1.5.3.1.1]
+      key: ups.bypass.phase.discovery
+      delay: 5m
+      item_prototypes:
+      - uuid: 74e8ca1bd0a341d99f1ebc67eac9c528
+        name: 'Bypass phase {#PHASE}: Voltage'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.5.3.1.2.{#SNMPINDEX}
+        key: ups.bypass.phase.voltage_v[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: V
+        tags:
+        - tag: class
+          value: ups
+        - tag: vendor
+          value: eaton
+        - tag: phase
+          value: '{#PHASE}'
+    - uuid: 6651703edae7463f91fe07c2b953bb4a
+      name: Environment contacts discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#INDEX},1.3.6.1.4.1.534.1.6.8.1.1]
+      key: ups.env.contacts.discovery
+      delay: 5m
+      item_prototypes:
+      - uuid: 6397b9f70fd245f7a279aa9dc9f2fee7
+        name: 'Env contact {#INDEX}: Type'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.6.8.1.2.{#SNMPINDEX}
+        key: ups.env.contact.type[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: '0'
+        value_type: UNSIGNED
+        tags:
+        - tag: class
+          value: ups
+      - uuid: 79406563d71e44e6a1cc401317fd3b06
+        name: 'Env contact {#INDEX}: State'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.6.8.1.3.{#SNMPINDEX}
+        key: ups.env.contact.state[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: '0'
+        value_type: UNSIGNED
+        tags:
+        - tag: class
+          value: ups
+      - uuid: a99ea0e91eff4b56b2e761761355106f
+        name: 'Env contact {#INDEX}: Description'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.534.1.6.8.1.4.{#SNMPINDEX}
+        key: ups.env.contact.descr[{#SNMPINDEX}]
+        delay: 5m
+        history: 31d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: class
+          value: ups
+    valuemaps:
+    - uuid: f13fa31206e545aa9b282766eb0408d9
+      name: Eaton XUPS battery ABM status
+      mappings:
+      - value: '1'
+        newvalue: Charging
+      - value: '2'
+        newvalue: Discharging
+      - value: '3'
+        newvalue: Floating
+      - value: '4'
+        newvalue: Resting
+      - value: '5'
+        newvalue: Unknown
+    - uuid: 8d0bc782790d497693ad07423f3311bc
+      name: Eaton XUPS input source
+      mappings:
+      - value: '1'
+        newvalue: None
+      - value: '2'
+        newvalue: Primary utility
+      - value: '3'
+        newvalue: Bypass
+      - value: '4'
+        newvalue: Secondary utility
+      - value: '5'
+        newvalue: Generator
+      - value: '6'
+        newvalue: Flywheel
+      - value: '7'
+        newvalue: Fuel cell
+    - uuid: fc4f7ae6c72740f2997eb0ce88c582d7
+      name: Eaton XUPS output source
+      mappings:
+      - value: '1'
+        newvalue: Other
+      - value: '2'
+        newvalue: None
+      - value: '3'
+        newvalue: Normal
+      - value: '4'
+        newvalue: Bypass
+      - value: '5'
+        newvalue: Battery
+      - value: '6'
+        newvalue: Booster
+      - value: '7'
+        newvalue: Reducer
+      - value: '8'
+        newvalue: Parallel capacity
+      - value: '9'
+        newvalue: Parallel redundant
+      - value: '10'
+        newvalue: High efficiency mode
+      - value: '11'
+        newvalue: Maintenance bypass
+      - value: '12'
+        newvalue: ESS
+    - uuid: 76d7eb1b8f7d456c9394545823b22421
+      name: Eaton XUPS battery test status
+      mappings:
+      - value: '1'
+        newvalue: Unknown
+      - value: '2'
+        newvalue: Passed
+      - value: '3'
+        newvalue: Failed
+      - value: '4'
+        newvalue: In progress
+      - value: '5'
+        newvalue: Not supported
+      - value: '6'
+        newvalue: Inhibited
+      - value: '7'
+        newvalue: Scheduled
+    macros:
+    - macro: '{$SNMP_COMMUNITY}'
+      value: public
+      description: SNMPv2c community string
+  triggers:
+  - uuid: 441d9c3a397749ca8529f0c656a2b120
+    expression: last(/Eaton 93PM by SNMP/ups.battery.runtime_s)<300
+    name: UPS battery runtime under 5min on {HOST.NAME}
+    priority: HIGH
+  - uuid: 1845e1a85fa14e179ab55b6898dcf596
+    expression: last(/Eaton 93PM by SNMP/ups.battery.capacity_pct)<50
+    name: UPS battery below 50% on {HOST.NAME}
+    priority: WARNING
+  - uuid: 3dba7eb98be24033839b5a5ad1050100
+    expression: last(/Eaton 93PM by SNMP/ups.battery.capacity_pct)<20
+    name: UPS battery below 20% on {HOST.NAME}
+    priority: HIGH
+  - uuid: de986e0131524f5ea7dcfa4fd612dedd
+    expression: last(/Eaton 93PM by SNMP/ups.battery.abm_status)=2
+    name: UPS on battery (discharging) on {HOST.NAME}
+    priority: HIGH
+  - uuid: 7284a34a41074de8b2fd166c49e121ce
+    expression: last(/Eaton 93PM by SNMP/ups.output.load_pct)>80
+    name: UPS load above 80% on {HOST.NAME}
+    priority: WARNING
+  - uuid: 68cd52e3ad5f4f2ea66a2bb7931dade4
+    expression: last(/Eaton 93PM by SNMP/ups.output.source)<>3
+    name: UPS output not normal on {HOST.NAME}
+    priority: HIGH
+  - uuid: a6505f1b189c444c8572a0fe38a2a2f2
+    expression: last(/Eaton 93PM by SNMP/ups.env.ambient_temp)>35
+    name: UPS ambient temperature high on {HOST.NAME}
+    priority: WARNING
+  - uuid: f20d3c4d574a463daaabd825fa6ea585
+    expression: last(/Eaton 93PM by SNMP/ups.alarm.active_count)>0
+    name: UPS has active alarms on {HOST.NAME}
+    priority: HIGH
+  - uuid: fa3c054bbc664f6ebf57eabbf24bf998
+    expression: last(/Eaton 93PM by SNMP/ups.test.battery_status)=3
+    name: UPS battery test failed on {HOST.NAME}
+    priority: HIGH
+

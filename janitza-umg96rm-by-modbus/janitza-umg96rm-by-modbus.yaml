@@ -1,0 +1,1136 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+  - uuid: 2985b2e080e14724a8d2bb43c04a1f67
+    name: Templates/HVAC
+  templates:
+  - uuid: cec22672e0924f3580b43e318c82f1e7
+    template: Janitza UMG96RM-E by Modbus
+    name: Janitza UMG96RM-E by Modbus
+    description: Janitza UMG96RM-E power meter via Modbus TCP. 61 holding registers (FLOAT32 ABCD, big-endian) starting at
+      19000. Requires Zabbix agent 2 with modbus plugin reachable from the Zabbix server. Set {$MODBUS.HOST} = tcp://<meter-ip>:502
+      and {$MODBUS.SLAVE} per host.
+    groups:
+    - name: Templates/HVAC
+    items:
+    - uuid: ab41f50833e149cba62cdea69ad3c7d3
+      name: 'Meter: Voltage L1-N'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19000,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+    - uuid: 98fcac9a657f48279e37694da1915dfb
+      name: 'Meter: Voltage L2-N'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19002,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+    - uuid: 396a64c2db8b4390af310c2492e32bff
+      name: 'Meter: Voltage L3-N'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19004,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+    - uuid: a471c180347547609dbee4c1545d3442
+      name: 'Meter: Voltage L1-L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19006,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+    - uuid: ffb89b830a624ed1a8e6d96ac22711ea
+      name: 'Meter: Voltage L2-L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19008,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+    - uuid: 6987f701402b474187da776b855a82c3
+      name: 'Meter: Voltage L3-L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19010,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+    - uuid: 003ad229b87f44a99e722395e01c6679
+      name: 'Meter: Current L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19012,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+    - uuid: 50ea14c702d943b69c576e8b30d66c69
+      name: 'Meter: Current L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19014,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+    - uuid: b6b90cd2a1bd44c7a54d2e6297426eb5
+      name: 'Meter: Current L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19016,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+    - uuid: 19df746f683e43f4b4dea57fdeac2133
+      name: 'Meter: Current vector sum'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19018,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+    - uuid: b77b9455e6454585b7d69fc1ec8e205a
+      name: 'Meter: Active power L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19020,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: 3b10b80593e749638e85f49061fda2ef
+      name: 'Meter: Active power L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19022,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: 18dcd9ebfc1d4a208271a50cedcd5ec6
+      name: 'Meter: Active power L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19024,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: f84387ac846d4501b3d330dce750f5af
+      name: 'Meter: Active power total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19026,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: c8d4adee1a104a87bc5b91314f5aabf5
+      name: 'Meter: Apparent power L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19028,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: c25a25a3aa354a26b2befebcb9ba7fc2
+      name: 'Meter: Apparent power L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19030,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: e1182be952a847de812faab513b77338
+      name: 'Meter: Apparent power L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19032,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: 641a187f422f48f897505f13c78a1a16
+      name: 'Meter: Apparent power total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19034,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: 2baa77da6c4e4c19a38b11037f891934
+      name: 'Meter: Reactive power L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19036,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: 9b3e536bf6e1481c89e4ec2c4d0c64e3
+      name: 'Meter: Reactive power L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19038,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: 867e4bd9369d4c6c952182859c6357f6
+      name: 'Meter: Reactive power L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19040,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: 024bd7cf41a2455da2992931356c1786
+      name: 'Meter: Reactive power total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19042,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: 503d83c0dbf14ba3a13ba277c4d3f2dd
+      name: 'Meter: Cos phi L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19044,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+    - uuid: 7c7cfb8583a649f0a13af2e17c9a4028
+      name: 'Meter: Cos phi L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19046,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+    - uuid: 41cb9ee18c18414a9b19b92b6d8d6072
+      name: 'Meter: Cos phi L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19048,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+    - uuid: 46eb25c84eb848d89a0bdd54e4c98f3f
+      name: 'Meter: Frequency'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19050,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Hz
+    - uuid: 71985ee7c0964c48a132f0d550c21be0
+      name: 'Meter: Rotation field'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19052,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+    - uuid: 3133028c43c34fd9afb1a0b83bc5f0fe
+      name: 'Meter: Energy active L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19054,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 0633b1889d274c599b87563f5688814a
+      name: 'Meter: Energy active L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19056,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 23051fcd55fb4673a55bd94031001f9a
+      name: 'Meter: Energy active L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19058,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 6df4975ce2e249db98c7519f89e2236a
+      name: 'Meter: Energy active total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19060,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: bf72602de0ba4d68b9f475c55568bb91
+      name: 'Meter: Energy active import L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19062,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: a428bd20735443df85a023da30e58961
+      name: 'Meter: Energy active import L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19064,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 98fb153dd2a44a588c6a2984b7ff7c1e
+      name: 'Meter: Energy active import L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19066,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 37545137539843d1a3ef0991bbc594cf
+      name: 'Meter: Energy active import total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19068,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 644c90e79a924fb1ae3e153c88c8c5f6
+      name: 'Meter: Energy active export L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19070,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: f996c8ade019409bbc66e7bfd9399031
+      name: 'Meter: Energy active export L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19072,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 1596c2ca79934a9098779cc457d71533
+      name: 'Meter: Energy active export L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19074,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 93c303d89d584c3eab1e0b82dd8c6923
+      name: 'Meter: Energy active export total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19076,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 982afba7e7064a0cb8072aa878692e1f
+      name: 'Meter: Energy apparent L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19078,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VAh
+    - uuid: 7116b094d8244358b404ddd43813a754
+      name: 'Meter: Energy apparent L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19080,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VAh
+    - uuid: c1d8db55ada245b8933a96b3acb17e38
+      name: 'Meter: Energy apparent L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19082,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VAh
+    - uuid: 93fd8141c5164490a0ed3bc1a355ab48
+      name: 'Meter: Energy apparent total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19084,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VAh
+    - uuid: fe4c562ab45e45fe91da63efd4019be9
+      name: 'Meter: Energy reactive L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19086,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 0bb6780e111740578e6737ea0212c465
+      name: 'Meter: Energy reactive L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19088,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 0180c28ccdfb4121bdb25e3eb08f5089
+      name: 'Meter: Energy reactive L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19090,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 41ac56fc2db34b0aafc27e8f8d048be0
+      name: 'Meter: Energy reactive total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19092,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 08f73bc61b2246769bfcfa4766c1f5b7
+      name: 'Meter: Energy reactive ind L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19094,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 8bf7b56caca143abb39c9d8848b9c782
+      name: 'Meter: Energy reactive ind L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19096,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 0718ab0b28a84d098ca9e86b4234d1a1
+      name: 'Meter: Energy reactive ind L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19098,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: f7d84678727e44879b39d126e2d01fac
+      name: 'Meter: Energy reactive ind total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19100,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: acdf25442271419797cae9fef71ee7f6
+      name: 'Meter: Energy reactive cap L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19102,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 99c0a69227a6477da6c1eac00c296e6f
+      name: 'Meter: Energy reactive cap L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19104,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 2d6b7447cc384c8eae36570591d14102
+      name: 'Meter: Energy reactive cap L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19106,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: a3729810ff6e4da58b13ca32d040179c
+      name: 'Meter: Energy reactive cap total'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19108,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: a623624096ac42ec9385253c713941ca
+      name: 'Meter: THD voltage L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19110,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+    - uuid: 39ecde0aaa9345e2b00d3ab0c91f2a8d
+      name: 'Meter: THD voltage L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19112,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+    - uuid: c3554d261308435d9508077f2797ce60
+      name: 'Meter: THD voltage L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19114,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+    - uuid: 09c6a6dbf26d47e9970757e9ffc375b5
+      name: 'Meter: THD current L1'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19118,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+    - uuid: 8d3e98037a65437593adea17203c4c36
+      name: 'Meter: THD current L2'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19120,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+    - uuid: 2c97b587fed7418a89cb2f9040fc22ad
+      name: 'Meter: THD current L3'
+      type: ZABBIX_ACTIVE
+      key: modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19122,1,float,be]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $[0]
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+    macros:
+    - macro: '{$MODBUS.HOST}'
+      value: tcp://10.1.109.55:502
+      description: Modbus TCP endpoint URL
+    - macro: '{$MODBUS.SLAVE}'
+      value: '1'
+      description: Modbus slave/unit ID
+  triggers:
+  - uuid: 0f4a861092064c618f3b80bb783e6001
+    expression: last(/Janitza UMG96RM-E by Modbus/modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19050,1,float,be])<49.5 and
+      last(/Janitza UMG96RM-E by Modbus/modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19050,1,float,be])>0
+    name: Janitza meter frequency below 49.5 Hz on {HOST.NAME}
+    priority: WARNING
+  - uuid: 08b7929b72674fbfba6285c7df22c000
+    expression: last(/Janitza UMG96RM-E by Modbus/modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19050,1,float,be])>50.5
+    name: Janitza meter frequency above 50.5 Hz on {HOST.NAME}
+    priority: WARNING
+  - uuid: d870f8f7cd924f63949421c96fa04952
+    expression: last(/Janitza UMG96RM-E by Modbus/modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19000,1,float,be])<200 and last(/Janitza
+      UMG96RM-E by Modbus/modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19000,1,float,be])>0
+    name: Janitza L1-N voltage below 200 V on {HOST.NAME}
+    priority: WARNING
+  - uuid: e084ec3c01704df885bdb35c442234ea
+    expression: nodata(/Janitza UMG96RM-E by Modbus/modbus.get[{$MODBUS.HOST},{$MODBUS.SLAVE},3,19050,1,float,be],5m)=1
+    name: Janitza meter not reporting on {HOST.NAME}
+    priority: AVERAGE
+

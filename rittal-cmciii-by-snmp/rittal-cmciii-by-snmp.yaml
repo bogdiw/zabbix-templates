@@ -1,0 +1,543 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+  - uuid: 7df96b18c230490a9a0a9e2307226338
+    name: Templates
+  templates:
+  - uuid: 326698a6b6ed47d4ba53be002d023fc1
+    template: Rittal CMC III by SNMP extended
+    name: Rittal CMC III by SNMP extended
+    description: 'The template for monitoring Rittal CMC III Processing Units using SNMP.
+
+
+      Extended with Variable LLD over cmcIIIVarTable that creates one float item per .Value/.Status/.RPM/.Temperature sensor
+      by reading the formatted-value column (.10) and extracting the leading number. Original template by n0ctem32 (https://github.com/n0ctem32/zabbix-rittal-template).'
+    groups:
+    - name: Templates
+    items:
+    - uuid: 371af814697c4cd9a3d4b76347c8b49f
+      name: URL
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2606.7.4.1.2.1.16.1
+      key: dev.url[cmcIIIDevURL.{#SNMPINDEX}]
+      value_type: TEXT
+      description: 'MIB: RITTAL-CMC-III-MIB
+
+        URL to device page of CMCIII PU (if available).
+
+        '
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2606.7.4.1.2.1.16.{#SNMPINDEX}
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      tags:
+      - tag: component
+        value: device
+    - uuid: 23f26cd02adf453991c852c72c30a70a
+      name: SNMP walk devices
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2606.7.4.1.2.1]
+      key: system.devices.walk
+      history: '0'
+      value_type: TEXT
+      description: Used for discovering device from RITTAL-CMC-III-MIB.
+      tags:
+      - tag: component
+        value: raw
+    - uuid: b05ed1f7421b4faaab8a399109856b18
+      name: SNMP walk variable names
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2606.7.4.2.2.1.3]
+      key: system.variable.names.walk
+      history: '0'
+      value_type: TEXT
+      description: Used for discovering variable names from RITTAL-CMC-III-MIB.
+      tags:
+      - tag: component
+        value: raw
+    - uuid: 9e449158b613441599831e898d1ff7d2
+      name: SNMP availability
+      type: INTERNAL
+      key: zabbix[host,snmp,available]
+      delay: 1m
+      history: 7d
+      trends: '0'
+      value_type: UNSIGNED
+      valuemap:
+        name: Zabbix host availability
+      tags:
+      - tag: component
+        value: availability
+    discovery_rules:
+    - uuid: b68de742eb57444085e8f73a35b80e1d
+      name: Device discovery
+      type: DEPENDENT
+      key: device.discovery
+      description: Used for discovering devices from Rittal-cmcIIIDevice.
+      item_prototypes:
+      - uuid: 4d848dba971643b0bc365dea92930939
+        name: 'Device {#DEV.NAME}: Article'
+        type: DEPENDENT
+        key: dev.article[cmcIIIDevArtNr.{#SNMPINDEX}]
+        value_type: TEXT
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Article number of device connected to CMCIII PU.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.7.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: eff9c9fc6d1444c995684d74b1a628b9
+        name: 'Device {#DEV.NAME}: Position'
+        type: DEPENDENT
+        key: dev.bus[cmcIIIDevBus.{#SNMPINDEX}]
+        trends: '0'
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Position (order) of device in CAN bus connected to CMCIII PU.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.9.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: bus
+          value: '{#BUS.NAME}'
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: 9d448e1a028f42de9314814463a9ab80
+        name: 'Device {#DEV.NAME}: Last Change'
+        type: DEPENDENT
+        key: dev.change[cmcIIIDevLastChange.{#SNMPINDEX}]
+        trends: '0'
+        units: uptime
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Timestamp of last change of device connected to CMCIII PU according to operating time cmcIIIUnitUpTime.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.15.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: ed2ba1fe7d37463b94534f3d9bdec621
+        name: 'Device {#DEV.NAME}: Firmware version'
+        type: DEPENDENT
+        key: dev.fw[cmcIIIDevFW.{#SNMPINDEX}]
+        value_type: TEXT
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          FW version of device connected to CMCIII PU.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.11.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: b596fdf56f46436f83caa030498c70b0
+        name: 'Device {#DEV.NAME}: Hardware version'
+        type: DEPENDENT
+        key: dev.hw[cmcIIIDevHW.{#SNMPINDEX}]
+        value_type: TEXT
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          HW version of device connected to CMCIII PU.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.12.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: 374e3359581b4c5ca7ca8b5ac4d1e2e7
+        name: 'Device {#DEV.NAME}: Location'
+        type: DEPENDENT
+        key: dev.location[cmcIIIDevLocation.{#SNMPINDEX}]
+        value_type: TEXT
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Location of device connectd to CMCIII PU.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.8.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: ea3b35e064554d2eae550e5f82a39403
+        name: 'Device {#DEV.NAME}: Maximum power consumption'
+        type: DEPENDENT
+        key: dev.maximum.power.consumption[cmcIIIDevCurrentMaxConsumption.{#SNMPINDEX}]
+        trends: '0'
+        units: mA
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Maximum power consumption of device in mA.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.21.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: component
+          value: power
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: 4ab09c0e0a2546479eb6a9544e134526
+        name: 'Device {#DEV.NAME}: Standby power consumption'
+        type: DEPENDENT
+        key: dev.minimum.power.consumption[cmcIIIDevCurrentMinConsumption.{#SNMPINDEX}]
+        trends: '0'
+        units: mA
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Standby power consumption of device in mA.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.20.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: component
+          value: power
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: 1b45f096349c44dba38663357480b3a0
+        name: 'Device {#DEV.NAME}: Serial number'
+        type: DEPENDENT
+        key: dev.serial[cmcIIIDevSerial.{#SNMPINDEX}]
+        trends: '0'
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Serial number of device connected to CMCIII PU.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.13.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: 3bf6e7d35882416da9ea8cc3fc0b24d2
+        name: 'Device {#DEV.NAME}: Status Text'
+        type: DEPENDENT
+        key: dev.status.text[cmcIIIDevStatusText.{#SNMPINDEX}]
+        value_type: TEXT
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Latest status of this device.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.19.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: 48647daa983d46f1a41f662a0ca4e903
+        name: 'Device {#DEV.NAME}: Status'
+        type: DEPENDENT
+        key: dev.status[cmcIIIDevStatus.{#SNMPINDEX}]
+        value_type: TEXT
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          General Status of device connected to CMCIII PU
+
+          (1) Device is not available
+
+          (2) OK
+
+          (3) Device detected, confirmation required
+
+          (4) Device lost (disconnected), confirmation required
+
+          (5) Device changed
+
+          (6) Error
+
+          (7) Firmware Update pending
+
+          (8) Firmware Update running.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.6.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      - uuid: d9a735cbf69849f8ae375177fa5161e9
+        name: 'Device {#DEV.NAME}: Type'
+        type: DEPENDENT
+        key: dev.type[cmcIIIDevType.{#SNMPINDEX}]
+        value_type: TEXT
+        description: 'MIB: RITTAL-CMC-III-MIB
+
+          Type pf device chassis connected to CMCIII PU.
+
+          '
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2606.7.4.1.2.1.4.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        master_item:
+          key: system.devices.walk
+        tags:
+        - tag: component
+          value: device
+        - tag: device
+          value: '{#DEV.NAME}'
+      master_item:
+        key: system.devices.walk
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#DEV.NAME}'
+        - 1.3.6.1.4.1.2606.7.4.1.2.1.2
+        - '0'
+        - '{#BUS.NAME}'
+        - 1.3.6.1.4.1.2606.7.4.1.2.1.9
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+    - uuid: 07f8311ae5d4482b900bc43b760c3a6c
+      name: Variable values discovery
+      type: DEPENDENT
+      key: variable.values.discovery
+      description: 'Numeric sensors from cmcIIIVarTable: Value/RPM/Temperature. Reads .10 (formatted string) and extracts
+        leading number.'
+      master_item:
+        key: system.variable.names.walk
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#VAR.NAME}'
+        - 1.3.6.1.4.1.2606.7.4.2.2.1.3
+        - '0'
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#VAR.NAME}'
+          value: \.(Value|RPM|Temperature)$
+          operator: MATCHES_REGEX
+          formulaid: A
+      item_prototypes:
+      - uuid: e19b73afa49d44c48e80308757475bd7
+        name: 'CMC: {#VAR.NAME}'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2606.7.4.2.2.1.10.{#SNMPINDEX}
+        key: cmc.var[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        preprocessing:
+        - type: REGEX
+          parameters:
+          - ^(-?\d+(?:[.,]\d+)?)
+          - \1
+        - type: STR_REPLACE
+          parameters:
+          - ','
+          - .
+        tags:
+        - tag: var_name
+          value: '{#VAR.NAME}'
+        - tag: component
+          value: sensor
+    - uuid: 7224ed1d761f4edabf219289bddbc07e
+      name: Variable status discovery
+      type: DEPENDENT
+      key: variable.status.discovery
+      description: 'Status/text sensors from cmcIIIVarTable: Status/Logic/State.'
+      master_item:
+        key: system.variable.names.walk
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#VAR.NAME}'
+        - 1.3.6.1.4.1.2606.7.4.2.2.1.3
+        - '0'
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#VAR.NAME}'
+          value: \.(Status|State)$
+          operator: MATCHES_REGEX
+          formulaid: A
+      item_prototypes:
+      - uuid: 6181b7e01e604375948527f0160843ad
+        name: 'CMC status: {#VAR.NAME}'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2606.7.4.2.2.1.10.{#SNMPINDEX}
+        key: cmc.var.status[{#SNMPINDEX}]
+        delay: 1m
+        history: 31d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: STR_REPLACE
+          parameters:
+          - ' '
+          - ''
+        tags:
+        - tag: var_name
+          value: '{#VAR.NAME}'
+        - tag: component
+          value: status
+        trigger_prototypes:
+        - uuid: d878cf07d81849d29acabce19fce4fa0
+          expression: last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"OK" and last(/Rittal CMC III by
+            SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"On" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Off"
+            and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Inactive" and last(/Rittal CMC III by
+            SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Active" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Closed"
+            and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Open" and last(/Rittal CMC III by SNMP
+            extended/cmc.var.status[{#SNMPINDEX}])<>"n.a." and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Standby"
+            and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Idle" and last(/Rittal CMC III by SNMP
+            extended/cmc.var.status[{#SNMPINDEX}])<>"Ready" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>""
+          name: 'CMC sensor {#VAR.NAME} reports problem on {HOST.NAME}: {ITEM.LASTVALUE}'
+          priority: WARNING
+    valuemaps:
+    - uuid: 50e4d32768114b4a812b4ec02764d581
+      name: General status of device connected to CMCIII PU
+      mappings:
+      - value: '1'
+        newvalue: Device not available
+      - value: '2'
+        newvalue: OK
+      - value: '3'
+        newvalue: Device detected, confirmation required
+      - value: '4'
+        newvalue: Device lost (disconnected), confirmation required
+      - value: '5'
+        newvalue: Device changed
+      - value: '6'
+        newvalue: Error
+      - value: '7'
+        newvalue: Firmware Update pending
+      - value: '8'
+        newvalue: Firmware Update running
+    - uuid: e850b58f85c24194b351fa0920c97b98
+      name: Zabbix host availability
+      mappings:
+      - value: '0'
+        newvalue: not available
+      - value: '1'
+        newvalue: available
+      - value: '2'
+        newvalue: unknown
+  triggers:
+  - uuid: 83ff076bd3464906bd8ac4c05614187f
+    expression: max(/Rittal CMC III by SNMP extended/zabbix[host,snmp,available],#3)=0
+    name: SNMP unreachable on {HOST.NAME}
+    priority: HIGH
+    description: Device has not responded to SNMP for the last 3 polls.
