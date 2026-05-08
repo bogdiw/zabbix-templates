@@ -496,14 +496,7 @@ zabbix_export:
           value: status
         trigger_prototypes:
         - uuid: d878cf07d81849d29acabce19fce4fa0
-          expression: last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"OK" and last(/Rittal CMC III by
-            SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"On" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Off"
-            and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Inactive" and last(/Rittal CMC III by
-            SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Active" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Closed"
-            and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Open" and last(/Rittal CMC III by SNMP
-            extended/cmc.var.status[{#SNMPINDEX}])<>"n.a." and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Standby"
-            and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Idle" and last(/Rittal CMC III by SNMP
-            extended/cmc.var.status[{#SNMPINDEX}])<>"Ready" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>""
+          expression: last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"OK" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"On" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Off" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Inactive" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Active" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Closed" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Open" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"n.a." and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Standby" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Stby" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Idle" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"Ready" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"LowWarn" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>"HighWarn" and last(/Rittal CMC III by SNMP extended/cmc.var.status[{#SNMPINDEX}])<>""
           name: 'CMC sensor {#VAR.NAME} reports problem on {HOST.NAME}: {ITEM.LASTVALUE}'
           priority: WARNING
     valuemaps:

@@ -1,29 +1,354 @@
 zabbix_export:
   version: '7.2'
   template_groups:
-    - uuid: 4f3a8b2c1d5e4a7b9c8d6e2f1a0b3c4d
-      name: Templates/HVAC
+  - uuid: e4ba987200b54b2a83f2050f6e71f0da
+    name: Templates/HVAC
   templates:
-    - uuid: 7c2e9a4b3f8d4c5a8e9d6f1b2a3c4e5f
-      template: 'ComAp InteliLite by Modbus'
-      name: 'ComAp InteliLite by Modbus'
-      description: |
-        STUB. ComAp InteliLite NT generator controller via Modbus TCP through IB-Lite module.
+  - uuid: 7d03b41cfd1748b99c780497218d3faa
+    template: ComAp InteliLite by Modbus
+    name: ComAp InteliLite by Modbus
+    description: ComAp InteliLite NT AMF26-P (and family) generator controller via Modbus TCP. Polls fixed standard addresses
+      (engine, generator electrical, mains, alarms). Requires a passive Zabbix Agent 2 with the modbus plugin (the zabbix-agent2-modbus
+      deployment in hvac ns at 10050). Set host's Agent interface to that service. Set {$MODBUS.ENDPOINT} = tcp://<gen-ip>:502
+      and {$MODBUS.SLAVE} = 1.
+    groups:
+    - name: Templates/HVAC
+    items:
+    - uuid: f31475958f8147bba8775aff35c8f866
+      name: 'Generator: Nominal power'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8276,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: kW
+    - uuid: f3b77b5f8aea498f9649a7a3fa051b60
+      name: 'Generator: Nominal current'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8275,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: A
+    - uuid: 8cca15b1cbcb4354ac471724e25b9cd8
+      name: 'Generator: Nominal voltage L-N'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8277,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: V
+    - uuid: a28f81ae194242999ffdef91616aa8f3
+      name: 'Generator: Nominal frequency'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8278,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: Hz
+    - uuid: f8abbec0e0024180a33a0833c5c15186
+      name: 'Generator: Nominal RPM'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8252,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: RPM
+    - uuid: 489b9291e2a24075be4ffab330b7148c
+      name: 'Generator: Controller mode'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8315,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+    - uuid: 1c604797eec54742aed450a4646ec54f
+      name: 'Generator: Engine RPM'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8253,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: RPM
+    - uuid: 4eca97404f464a89ab4a8af5dcb744bd
+      name: 'Generator: Coolant temperature'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8227,1,int16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: "\xB0C"
+      preprocessing:
+      - type: MATCHES_REGEX
+        parameters:
+        - ^(?!-?32768$).*$
+        error_handler: DISCARD_VALUE
+    - uuid: e49000cf01a04202ad6d9049da3ff06e
+      name: 'Generator: Fuel level'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8228,1,int16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: '%'
+      preprocessing:
+      - type: MATCHES_REGEX
+        parameters:
+        - ^(?!-?32768$).*$
+        error_handler: DISCARD_VALUE
+    - uuid: a6ef351dcc5a4f48946526976998bef9
+      name: 'Generator: Run hours'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8229,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: h
+    - uuid: 69e2edb723bc480ebb8c545ef0855b00
+      name: 'Generator: Gen current L1'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8202,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: A
+    - uuid: cc434710d14644899819a472a1c9a925
+      name: 'Generator: Gen current L2'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8203,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: A
+    - uuid: e300274f59cb4414945301469cd3105a
+      name: 'Generator: Gen current L3'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8204,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: A
+    - uuid: 3bbe1db2a98145a091333a3b285a3de1
+      name: 'Generator: Gen active power'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8205,1,int16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: kW
+    - uuid: 3024c70219354ecfb464896c032dac58
+      name: 'Generator: Gen apparent power'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8208,1,int16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: kVA
+    - uuid: 0de9706b55c04042a730bee624cfe8d2
+      name: 'Generator: Gen power factor'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8211,1,int16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: d10d68d091bd4feeb0b8eb874f841e93
+      name: 'Generator: Mains frequency'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8210,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: Hz
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: fca9e572a18043aab13a998213655b3a
+      name: 'Generator: Mains voltage L1'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8213,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: V
+    - uuid: ba0e734f4f864a5bbd590df23d90c085
+      name: 'Generator: Energy total kWh'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8200,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      units: kWh
+    - uuid: d5beba6068964e5fa8d3218ed3db8082
+      name: 'Generator: Binary inputs word 2'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8301,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+    - uuid: ac2afc8102c14de0808147aef6e8beb2
+      name: 'Generator: Binary inputs word 3'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8302,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+    - uuid: b06a4749471a44aaa3771cec075b3203
+      name: 'Generator: Binary inputs word 4'
+      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8303,1,uint16]
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+    macros:
+    - macro: '{$MODBUS.ENDPOINT}'
+      value: tcp://10.1.109.53:502
+      description: Modbus TCP endpoint URL of the generator IB-Lite
+    - macro: '{$MODBUS.SLAVE}'
+      value: '1'
+      description: "Modbus unit ID \u2014 typically 1 for InteliLite NT"
+    - macro: '{$COOLANT.HIGH}'
+      value: '95'
+      description: "Coolant temp high alarm threshold (\xB0C)"
+    - macro: '{$OIL.LOW}'
+      value: '1.5'
+      description: Oil pressure low alarm threshold (bar)
+    - macro: '{$FUEL.LOW}'
+      value: '20'
+      description: Fuel level low warn threshold (%)
+    - macro: '{$BATT.LOW}'
+      value: '11.5'
+      description: Battery voltage low alarm threshold (V)
+  triggers:
+  - uuid: 4b31642a35e747119a4cd48cde47ffc9
+    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8315,1,uint16])<>2
+    name: 'Generator NOT in AUTO mode on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: WARNING
+  - uuid: e2fb6073c0c9499d960efd5285c5b9a5
+    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8227,1,int16])>{$COOLANT.HIGH}
+    name: "Coolant temp high on {HOST.NAME}: {ITEM.LASTVALUE} \xB0C"
+    priority: HIGH
+  - uuid: 107b3e4920fc42e6993166ab7bf805fd
+    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8228,1,int16])<{$FUEL.LOW}
+      and last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8228,1,int16])>=0
+    name: 'Fuel level low on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    priority: WARNING
+  - uuid: 8f7ff15f05bc4267820fef74ca29f023
+    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8253,1,uint16])>500
+    name: Generator running on {HOST.NAME}
+    priority: INFO
+    description: "Engine RPM above 500 \u2014 generator is supplying load (or warming up)."
 
-        Register layout is configuration-specific (depends on programmed inputs/outputs and on the optional
-        "User Modbus" custom register block). Cannot be populated until the gen-set commissioner provides
-        either an InteliConfig/LiteEdit configuration export or a User-Modbus register list.
-
-        IB-Lite endpoint: tcp://10.1.109.53:502, slave_id depends on commissioning. Web UI at
-        http://10.1.109.53/sp_index.htm. IB-Lite caps at 2 web + 2 Modbus clients simultaneously.
-
-        Until populated: use Template Module ICMP Ping for availability only.
-      groups:
-        - name: Templates/HVAC
-      macros:
-        - macro: '{$MODBUS.HOST}'
-          value: 'tcp://10.1.109.53:502'
-          description: 'Modbus TCP endpoint URL (IB-Lite)'
-        - macro: '{$MODBUS.SLAVE}'
-          value: '1'
-          description: 'Modbus unit ID — confirm with commissioner'

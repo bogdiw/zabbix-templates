@@ -1,30 +1,177 @@
 zabbix_export:
   version: '7.2'
   template_groups:
-    - uuid: 4f3a8b2c1d5e4a7b9c8d6e2f1a0b3c4d
+    - uuid: 55e6168e293c422aae57b3ac75af37fc
       name: Templates/HVAC
   templates:
-    - uuid: b6d949e8e9dd4f18ad25a33486b222d4
+    - uuid: 7f2a881bdb324f4090bdece7acaa2abf
       template: 'HW Group Damocles2 by SNMP'
       name: 'HW Group Damocles2 by SNMP'
       description: |
-        STUB. HW Group Damocles2 (Mini and full) fire/sensor panel via SNMPv2c.
+        HW Group Damocles2 (Mini and full) fire/sensor panel via SNMPv2c.
 
-        Damocles2 ships with SNMP DISABLED by default. Enable on the device first
-        (Web UI -> System -> SNMP) before populating items.
+        Damocles2 ships with SNMP DISABLED by default. Once enabled (Web UI -> System -> SNMP),
+        sysDescr/sysUptime become readable and the SNMP-unreachable trigger clears.
 
-        Once SNMP is enabled, items should be generated from DAMOCLES-MIB
-        (HW Group OID base 1.3.6.1.4.1.21796.4) using mib2zabbix:
-            mib2zabbix -o 1.3.6.1.4.1.21796.4 -n Damocles2 > items.yaml
+        Until SNMP is enabled on-device, the SNMP-unreachable trigger will fire continuously
+        as a reminder. This is intentional — surfaces the configuration gap.
 
-        Inventory:
-          .204  CentralaDetectie01-PL  RO-PLO-S01
-          .207  (TBD name — not in Excel inventory; reachable from cluster)
-
-        Until SNMP is enabled: use Template Module ICMP Ping for availability only.
+        Future work: extend with mib2zabbix from DAMOCLES-MIB (1.3.6.1.4.1.21796.4) once
+        SNMP is enabled, to add per-input items (temp/humidity/dry contacts).
       groups:
         - name: Templates/HVAC
+      items:
+        - uuid: b2795cd3b72c4df984569d190b1c080d
+          name: 'System description'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.1.0
+          key: system.descr
+          delay: 10m
+          history: 31d
+          trends: '0'
+          value_type: CHAR
+          tags:
+            - tag: component
+              value: system
+        - uuid: 37a293eaaf7b4a5f8a486f7c131978ae
+          name: 'System uptime'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.3.0
+          key: system.uptime
+          delay: 1m
+          history: 7d
+          trends: '0'
+          value_type: FLOAT
+          units: uptime
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 874db1e6f8504ed4a97d52d521e1356d
+          name: 'SNMP availability'
+          type: INTERNAL
+          key: 'zabbix[host,snmp,available]'
+          delay: 1m
+          history: 7d
+          trends: '0'
+          value_type: UNSIGNED
+          valuemap:
+            name: 'Zabbix host availability'
+          tags:
+            - tag: component
+              value: availability
+      valuemaps:
+        - uuid: bb4f97bda885441293bc40fae73cc3c1
+          name: 'Zabbix host availability'
+          mappings:
+            - value: '0'
+              newvalue: 'not available'
+            - value: '1'
+              newvalue: available
+            - value: '2'
+              newvalue: unknown
+        - uuid: 5c4fce40896d4d4c9201114f7ef0aa30
+          name: 'Damocles sensor state'
+          mappings:
+            - value: '0'
+              newvalue: 'invalid'
+            - value: '1'
+              newvalue: 'normal'
+            - value: '2'
+              newvalue: 'alarm low'
+            - value: '3'
+              newvalue: 'alarm high'
+            - value: '4'
+              newvalue: 'alarm sensor lost'
+      discovery_rules:
+        - uuid: eb90ef9d308a4580a63ad2032bf4f8ca
+          name: 'Sensor discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#SENSOR_NAME},1.3.6.1.4.1.21796.4.1.3.1.2]'
+          key: damocles.sensor.discovery
+          delay: 5m
+          lifetime: 30d
+          description: 'Discovers all entries in DAMOCLES-MIB sensTable (.1.3.6.1.4.1.21796.4.1.3.1).'
+          item_prototypes:
+            - uuid: b4588b2800874e80a8c1cbec1a695bef
+              name: 'Sensor {#SENSOR_NAME}: Value'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.21796.4.1.3.1.5.{#SNMPINDEX}'
+              key: 'damocles.sensor.value[{#SNMPINDEX}]'
+              delay: 1m
+              history: 31d
+              trends: 365d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+              tags:
+                - tag: component
+                  value: sensor
+                - tag: sensor_name
+                  value: '{#SENSOR_NAME}'
+            - uuid: 33ce25aeccd24877921d51818ef90241
+              name: 'Sensor {#SENSOR_NAME}: State'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.21796.4.1.3.1.4.{#SNMPINDEX}'
+              key: 'damocles.sensor.state[{#SNMPINDEX}]'
+              delay: 1m
+              history: 31d
+              trends: '0'
+              value_type: UNSIGNED
+              valuemap:
+                name: 'Damocles sensor state'
+              tags:
+                - tag: component
+                  value: sensor
+                - tag: sensor_name
+                  value: '{#SENSOR_NAME}'
+              trigger_prototypes:
+                - uuid: 95a0769abe42488eb3ce6afe5cb082d1
+                  expression: 'last(/HW Group Damocles2 by SNMP/damocles.sensor.state[{#SNMPINDEX}])>1'
+                  name: 'Damocles sensor {#SENSOR_NAME} not in normal state on {HOST.NAME}: {ITEM.LASTVALUE}'
+                  priority: HIGH
+                  description: 'Sensor reports non-normal state (alarm, lost, or out-of-range).'
+        - uuid: 29fc3508063043db98df11372ea51610
+          name: 'Input discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#INPUT_NAME},1.3.6.1.4.1.21796.4.1.4.1.2]'
+          key: damocles.input.discovery
+          delay: 5m
+          lifetime: 30d
+          description: 'Discovers all dry-contact / digital inputs in DAMOCLES-MIB inpTable.'
+          item_prototypes:
+            - uuid: 9fa9790d0cbc414b94b524df3c49cb7e
+              name: 'Input {#INPUT_NAME}: Value'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.21796.4.1.4.1.3.{#SNMPINDEX}'
+              key: 'damocles.input.value[{#SNMPINDEX}]'
+              delay: 1m
+              history: 31d
+              trends: '0'
+              value_type: UNSIGNED
+              tags:
+                - tag: component
+                  value: input
+                - tag: input_name
+                  value: '{#INPUT_NAME}'
+              trigger_prototypes:
+                - uuid: 1798a6c7a22e47098e0b9ef63839ac54
+                  expression: 'change(/HW Group Damocles2 by SNMP/damocles.input.value[{#SNMPINDEX}])<>0'
+                  name: 'Damocles input {#INPUT_NAME} state changed on {HOST.NAME}: {ITEM.LASTVALUE}'
+                  priority: WARNING
+                  manual_close: 'YES'
       macros:
         - macro: '{$SNMP_COMMUNITY}'
           value: 'public'
           description: 'SNMPv2c community — change after enabling SNMP on device'
+  triggers:
+    - uuid: 931063137b824d2aa493690ddcdeae4b
+      expression: 'max(/HW Group Damocles2 by SNMP/zabbix[host,snmp,available],#3)=0'
+      name: 'SNMP unreachable on {HOST.NAME}'
+      priority: HIGH
+      description: 'Damocles2 has not responded to SNMP for 3 polls. Either device is offline OR SNMP is disabled on the device (default for Damocles2).'
