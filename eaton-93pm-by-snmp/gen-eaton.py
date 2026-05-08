@@ -147,6 +147,26 @@ def build():
         "item_prototypes": env_proto,
     })
 
+    # SNMP availability item + trigger (consistent with other HVAC templates)
+    items.append({
+        "uuid": U("item:snmp_avail"),
+        "name": "SNMP availability",
+        "type": "INTERNAL",
+        "key": "zabbix[host,snmp,available]",
+        "delay": "1m",
+        "history": "7d", "trends": "0",
+        "value_type": "UNSIGNED",
+        "valuemap": {"name": "Zabbix host availability"},
+        "tags": [{"tag":"component","value":"availability"}],
+    })
+    triggers.append({
+        "uuid": U("trig:snmp_unreachable"),
+        "expression": f'max(/{TEMPLATE_NAME}/zabbix[host,snmp,available],#3)=0',
+        "name": "SNMP unreachable on {HOST.NAME}",
+        "priority": "HIGH",
+    })
+    VALUEMAPS["Zabbix host availability"] = [("0","not available"),("1","available"),("2","unknown")]
+
     tpl = {
         "zabbix_export": {
             "version": "7.2",

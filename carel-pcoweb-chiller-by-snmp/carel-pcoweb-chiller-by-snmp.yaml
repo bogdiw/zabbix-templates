@@ -1,0 +1,300 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+  - uuid: 71ed68316dfe49ca80f91b3f93eeb57c
+    name: Templates/HVAC
+  templates:
+  - uuid: 4cf0e5dc112b48898a9924b5e35d4b8d
+    template: Carel pCOWeb chiller by SNMP
+    name: Carel pCOWeb chiller by SNMP
+    description: "Carel pCOWeb chiller via SNMPv2c. Master walk + dependent LLD over .9839.2.1.{1,2,3} (di/ai/ii). Discovers\
+      \ only populated indexes. Analog values divided by 10 (Carel convention). Rename specific items once Flakt OEM commissioning\
+      \ sheet maps index \u2192 physical point."
+    groups:
+    - name: Templates/HVAC
+    items:
+    - uuid: 5d5896bf5acd4d049fcd30e12b635bc7
+      name: SNMP availability
+      type: INTERNAL
+      key: zabbix[host,snmp,available]
+      delay: 1m
+      history: 7d
+      trends: '0'
+      value_type: UNSIGNED
+      valuemap:
+        name: Zabbix host availability
+      tags:
+      - tag: component
+        value: availability
+    - uuid: 372b470e107f4bb782363b817ab65998
+      name: System description
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.1.0
+      key: system.descr
+      delay: 10m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: system
+    - uuid: 991a6bb28ddf4a9cbbf590ade28844df
+      name: System uptime
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.3.0
+      key: system.uptime
+      delay: 1m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      units: uptime
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.01'
+      tags:
+      - tag: component
+        value: system
+    - uuid: b870d6870e984730aa085576a975becc
+      name: SNMP walk Carel ai
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.9839.2.1.2]
+      key: carel.ai.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      timeout: 60s
+      tags:
+      - tag: component
+        value: raw
+    - uuid: b0cb6829a722463390790163f637300a
+      name: SNMP walk Carel ii
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.9839.2.1.3]
+      key: carel.ii.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      timeout: 60s
+      tags:
+      - tag: component
+        value: raw
+    - uuid: f556b36d07824312b728f0c149ea0397
+      name: SNMP walk Carel di
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.9839.2.1.1]
+      key: carel.di.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      timeout: 60s
+      tags:
+      - tag: component
+        value: raw
+    discovery_rules:
+    - uuid: 2174af7674c848638b247fdf208515d3
+      name: Carel ai discovery
+      type: DEPENDENT
+      key: carel.ai.discovery
+      delay: '0'
+      lifetime: 30d
+      master_item:
+        key: carel.ai.walk
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#SNMPVALUE}'
+        - 1.3.6.1.4.1.9839.2.1.2
+        - '0'
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#SNMPVALUE}'
+          value: ^0$
+          operator: NOT_MATCHES_REGEX
+          formulaid: A
+        - macro: '{#SNMPVALUE}'
+          value: ^-888$
+          operator: NOT_MATCHES_REGEX
+          formulaid: B
+      item_prototypes:
+      - uuid: ed64b472767d4c4997b0a74d981ec596
+        name: Carel ai_{#SNMPINDEX}
+        type: DEPENDENT
+        key: carel.ai[{#SNMPINDEX}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        master_item:
+          key: carel.ai.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.9839.2.1.2.{#SNMPINDEX}
+          - '0'
+        - type: MATCHES_REGEX
+          parameters:
+          - ^(?!-888$).*$
+          error_handler: DISCARD_VALUE
+        - type: MULTIPLIER
+          parameters:
+          - '0.1'
+        tags:
+        - tag: class
+          value: chiller
+        - tag: vendor
+          value: carel
+        - tag: carel_kind
+          value: ai
+        - tag: carel_index
+          value: '{#SNMPINDEX}'
+        trigger_prototypes:
+        - uuid: 0e397cc8cfd043dfb18aebe1b7d70f42
+          expression: last(/Carel pCOWeb chiller by SNMP/carel.ai[{#SNMPINDEX}])>1000
+          name: 'Chiller ai_{#SNMPINDEX} reads impossibly high (>1000) on {HOST.NAME}: {ITEM.LASTVALUE}'
+          priority: AVERAGE
+          description: 'Sensor-fault detection: no real chiller analog (temp/pressure/%/setpoint) reads above 1000. Indicates
+            open-circuit, sensor failure, or maxed-out probe.'
+        - uuid: f4fc31c922ee4517b6903bb88a1421a1
+          expression: last(/Carel pCOWeb chiller by SNMP/carel.ai[{#SNMPINDEX}])<-500
+          name: 'Chiller ai_{#SNMPINDEX} reads impossibly low (<-500) on {HOST.NAME}: {ITEM.LASTVALUE}'
+          priority: AVERAGE
+          description: 'Sensor-fault detection: no real chiller analog reads below -500. Indicates sensor disconnect or short
+            to ground.'
+        - uuid: 0b4ea9c175c0437e98ef67a5a5ab6687
+          expression: nodata(/Carel pCOWeb chiller by SNMP/carel.ai[{#SNMPINDEX}],10m)=1
+          name: Chiller ai_{#SNMPINDEX} stopped reporting on {HOST.NAME}
+          priority: INFO
+          description: Sensor stopped reporting for 10 minutes. Could indicate physical disconnect, controller fault, or SNMP
+            issue.
+        - uuid: b321991521404939938609fbb00a2c61
+          expression: abs(last(/Carel pCOWeb chiller by SNMP/carel.ai[{#SNMPINDEX}])-last(/Carel pCOWeb chiller by SNMP/carel.ai[{#SNMPINDEX}],#2))>100
+          name: 'Chiller ai_{#SNMPINDEX} sudden jump (>100 in 1 cycle) on {HOST.NAME}: {ITEM.LASTVALUE}'
+          priority: INFO
+          description: 'Sensor-fault detection: chiller analog values change slowly. An instantaneous jump >100 between consecutive
+            polls suggests sensor glitch, sticking probe, or controller restart.'
+    - uuid: aba489cc60fe412abcdf90066f08e25d
+      name: Carel ii discovery
+      type: DEPENDENT
+      key: carel.ii.discovery
+      delay: '0'
+      lifetime: 30d
+      master_item:
+        key: carel.ii.walk
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#SNMPVALUE}'
+        - 1.3.6.1.4.1.9839.2.1.3
+        - '0'
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#SNMPVALUE}'
+          value: ^0$
+          operator: NOT_MATCHES_REGEX
+          formulaid: A
+      item_prototypes:
+      - uuid: ba960f21f3e9476eb7cbbe5dfc403a94
+        name: Carel ii_{#SNMPINDEX}
+        type: DEPENDENT
+        key: carel.ii[{#SNMPINDEX}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: UNSIGNED
+        master_item:
+          key: carel.ii.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.9839.2.1.3.{#SNMPINDEX}
+          - '0'
+        tags:
+        - tag: class
+          value: chiller
+        - tag: vendor
+          value: carel
+        - tag: carel_kind
+          value: ii
+        - tag: carel_index
+          value: '{#SNMPINDEX}'
+    - uuid: 50ac12084b0140cab737b105da7e32cd
+      name: Carel di discovery
+      type: DEPENDENT
+      key: carel.di.discovery
+      delay: '0'
+      lifetime: 30d
+      master_item:
+        key: carel.di.walk
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#SNMPVALUE}'
+        - 1.3.6.1.4.1.9839.2.1.1
+        - '0'
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#SNMPVALUE}'
+          value: ^0$
+          operator: NOT_MATCHES_REGEX
+          formulaid: A
+      item_prototypes:
+      - uuid: b2a3556262de48c89dd48105470ffdd8
+        name: Carel di_{#SNMPINDEX}
+        type: DEPENDENT
+        key: carel.di[{#SNMPINDEX}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: UNSIGNED
+        master_item:
+          key: carel.di.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.9839.2.1.1.{#SNMPINDEX}
+          - '0'
+        tags:
+        - tag: class
+          value: chiller
+        - tag: vendor
+          value: carel
+        - tag: carel_kind
+          value: di
+        - tag: carel_index
+          value: '{#SNMPINDEX}'
+        trigger_prototypes:
+        - uuid: 168b40593b874e56b522b1121003156a
+          expression: change(/Carel pCOWeb chiller by SNMP/carel.di[{#SNMPINDEX}])<>0
+          name: 'Chiller di_{#SNMPINDEX} state changed on {HOST.NAME}: {ITEM.LASTVALUE}'
+          priority: INFO
+          description: "Digital input state change detected. Without OEM mapping we cannot distinguish 'compressor started'\
+            \ from 'alarm activated' \u2014 investigate."
+          manual_close: 'YES'
+    valuemaps:
+    - uuid: 93f920305d974c339956326242cc3322
+      name: Zabbix host availability
+      mappings:
+      - value: '0'
+        newvalue: not available
+      - value: '1'
+        newvalue: available
+      - value: '2'
+        newvalue: unknown
+    macros:
+    - macro: '{$SNMP_COMMUNITY}'
+      value: public
+      description: SNMPv2c community
+  triggers:
+  - uuid: e6c582c62427436aa4cc2f624e484032
+    expression: max(/Carel pCOWeb chiller by SNMP/zabbix[host,snmp,available],#3)=0
+    name: SNMP unreachable on {HOST.NAME}
+    priority: HIGH
+  - uuid: 30803d1492f2468295b94aec3a538c33
+    expression: last(/Carel pCOWeb chiller by SNMP/system.uptime)<10m
+    name: Chiller controller restarted on {HOST.NAME}
+    priority: INFO
+

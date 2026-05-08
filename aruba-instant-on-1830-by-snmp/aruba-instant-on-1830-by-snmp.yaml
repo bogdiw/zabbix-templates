@@ -147,11 +147,12 @@ zabbix_export:
         - tag: interface
           value: '{#IFNAME}'
         trigger_prototypes:
-        - uuid: fa48ab83eed74bd19e3df467f4e83668
-          expression: last(/HPE Aruba Instant On 1830 by SNMP/net.if.status[{#SNMPINDEX}])=2 and last(/HPE Aruba Instant On
-            1830 by SNMP/net.if.adminstatus[{#SNMPINDEX}])=1
-          name: Interface {#IFNAME} is down on {HOST.NAME}
+        - uuid: adb211d0931347429073014e32c23ac5
+          expression: last(/HPE Aruba Instant On 1830 by SNMP/net.if.status[{#SNMPINDEX}],#1)=2 and last(/HPE Aruba Instant
+            On 1830 by SNMP/net.if.status[{#SNMPINDEX}],#2)=1 and last(/HPE Aruba Instant On 1830 by SNMP/net.if.adminstatus[{#SNMPINDEX}])=1
+          name: Interface {#IFNAME} link lost on {HOST.NAME}
           priority: AVERAGE
+          manual_close: 'YES'
       - uuid: 305a5e8c8c7a4f20b2c547bd87d1617a
         name: 'Interface {#IFNAME}: Admin status'
         type: SNMP_AGENT

@@ -1,0 +1,928 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+  - uuid: 047a49628d68465487900b7d358e4688
+    name: Templates/HVAC
+  templates:
+  - uuid: a061e535c1c44f23abfcae167f2cdd3a
+    template: Janitza UMG96 by SNMP
+    name: Janitza UMG96 by SNMP
+    description: 'Janitza UMG96RM-E power meter via SNMPv2c (enterprise OID 34278). 46 items: V/I/P/cosphi per phase + totals,
+      energy import per phase + totals, THD V/I, frequency, rotation. Live-validated 2026-05-08; values match Modbus exactly.
+      Use this instead of the older Janitza-by-Modbus template.'
+    groups:
+    - name: Templates/HVAC
+    items:
+    - uuid: 8f37009c7f8c45d2a9f0127579157488
+      name: 'Meter: Voltage L1-N'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.1.0
+      key: voltage_l1n
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 4142e0324db0447183ede0ff0166c221
+      name: 'Meter: Voltage L2-N'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.2.0
+      key: voltage_l2n
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 9a0427c193ca4415874dd99d44775844
+      name: 'Meter: Voltage L3-N'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.3.0
+      key: voltage_l3n
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 6115b70a994840b4a0968c89b9fad33b
+      name: 'Meter: Voltage L1-L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.4.0
+      key: voltage_l1l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: b8e0939905d44c628eaca41e36f2d694
+      name: 'Meter: Voltage L2-L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.5.0
+      key: voltage_l2l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: aa06373faeaa456ea92c8a2986dc492a
+      name: 'Meter: Voltage L3-L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.6.0
+      key: voltage_l3l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: V
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 22b9cf8beafa4623986d6bcf9aff84cc
+      name: 'Meter: Current L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.7.0
+      key: current_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: f6b1bb67887d449e9256e3a6a080f681
+      name: 'Meter: Current L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.8.0
+      key: current_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: 9d8581ef3ab944528a8c8be69519c971
+      name: 'Meter: Current L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.9.0
+      key: current_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: 96ff1f5ae8b849fd8a7aabbd1c6dea4b
+      name: 'Meter: Current N (neutral)'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.10.0
+      key: current_n
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: A
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: ef6605664bfb47fc981e47485d36116f
+      name: 'Meter: Active power L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.13.0
+      key: active_power_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: e818c9e4944343debb8e54d43ce97b45
+      name: 'Meter: Active power L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.14.0
+      key: active_power_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: 7bdc0ff82dad42828bf75d1b15195ca9
+      name: 'Meter: Active power L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.15.0
+      key: active_power_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: b2e81bfea21a4dcda36a7151c1f02c58
+      name: 'Meter: Reactive power L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.16.0
+      key: reactive_power_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: 4c365b74fdc546d2b05c773509098ce6
+      name: 'Meter: Reactive power L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.17.0
+      key: reactive_power_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: af00d8c1b61742d49b1942e9faf9c97f
+      name: 'Meter: Reactive power L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.18.0
+      key: reactive_power_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: f317b0812f184e72961c57c5a955cd46
+      name: 'Meter: Apparent power L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.19.0
+      key: apparent_power_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: 9d4ae18ea7bc4f2f92440a3540b9a4e8
+      name: 'Meter: Apparent power L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.20.0
+      key: apparent_power_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: a51bdd1ee6b945a9bce68c4dacecbbad
+      name: 'Meter: Apparent power L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.21.0
+      key: apparent_power_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: f16b1a6b32c945839f4f80efe4003f83
+      name: 'Meter: Cos phi L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.22.0
+      key: cosphi_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: 0264bab7c4374a75a91aba1216a36962
+      name: 'Meter: Cos phi L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.23.0
+      key: cosphi_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: dbb4bed994494b61a5c84ee1e7402566
+      name: 'Meter: Cos phi L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.1.24.0
+      key: cosphi_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: c9517db27dd94c1bb5fb836e8beec2c3
+      name: 'Meter: Active power total'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.2.1.0
+      key: active_power_total
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: W
+    - uuid: 51ad79d7d7fa480d9ad497b9ee238cce
+      name: 'Meter: Reactive power total'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.2.2.0
+      key: reactive_power_total
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: var
+    - uuid: 0dd13d8c1f2a454ab06fd521b5db5068
+      name: 'Meter: Apparent power total'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.2.3.0
+      key: apparent_power_total
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: VA
+    - uuid: 09b80374dbdf433b8d50d6e4fd98cd9d
+      name: 'Meter: Cos phi total'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.2.4.0
+      key: cosphi_total
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.001'
+    - uuid: f79a5b70a99548fb9f2bae4ea8c7735e
+      name: 'Meter: Energy active L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.3.1.0
+      key: energy_active_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 7ec707dc3c7f41c5bad7962f9f78b96e
+      name: 'Meter: Energy active L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.3.2.0
+      key: energy_active_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: e7fad617fe884da0a96d3130a5eecffb
+      name: 'Meter: Energy active L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.3.3.0
+      key: energy_active_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: fab85231b4c24addb5fe45f04e34eb17
+      name: 'Meter: Energy reactive L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.3.4.0
+      key: energy_reactive_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: f812bf6be9e04f33bd1a968adfba6713
+      name: 'Meter: Energy reactive L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.3.5.0
+      key: energy_reactive_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 79d8a46961c34556824ceeb975e942e9
+      name: 'Meter: Energy reactive L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.3.6.0
+      key: energy_reactive_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: ccb616f4180b446b939edf9011fdee22
+      name: 'Meter: Energy active total'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.4.1.0
+      key: energy_active_total
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Wh
+    - uuid: 54d74978079c4c3f95de4604d931c604
+      name: 'Meter: Energy reactive total'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.4.2.0
+      key: energy_reactive_total
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: varh
+    - uuid: 184c525e47a14a2eb0589c0e3733a8e8
+      name: 'Meter: THD voltage L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.5.1.0
+      key: thd_voltage_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 80ef71a5b4124fef99121fc359c15638
+      name: 'Meter: THD voltage L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.5.2.0
+      key: thd_voltage_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 5704aead3e964ed48a89f42c14c2a0f0
+      name: 'Meter: THD voltage L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.5.3.0
+      key: thd_voltage_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: c5f105c1a2a04a498db4a54608724d75
+      name: 'Meter: THD current L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.5.4.0
+      key: thd_current_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 316bb8ba0c494028b7635fb5030f289c
+      name: 'Meter: THD current L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.5.5.0
+      key: thd_current_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: c1e5ccb369084b0683260e11a451344b
+      name: 'Meter: THD current L3'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.5.6.0
+      key: thd_current_l3
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: '%'
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 8a8ee9b4648a4bf3abe7692e4ea62260
+      name: 'Meter: Frequency'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.6.1.0
+      key: frequency
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      units: Hz
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.01'
+    - uuid: 32cd49739229478f96ed1cc61ee45995
+      name: 'Meter: Rotation field L1'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.6.2.0
+      key: rotation_l1
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: e9e26ee60c0b4734a91d9a24e7069711
+      name: 'Meter: Rotation field L2'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.6.3.0
+      key: rotation_l2
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.1'
+    - uuid: 3c25aceff75049dc97154102cf65ef28
+      name: 'Meter: Device label'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.34278.8.6.0
+      key: device_label
+      delay: 1m
+      history: 31d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: class
+        value: meter
+      - tag: vendor
+        value: janitza
+    - uuid: 872dc6d0493f476198fadfe6cb62cd05
+      name: SNMP availability
+      type: INTERNAL
+      key: zabbix[host,snmp,available]
+      delay: 1m
+      history: 7d
+      trends: '0'
+      value_type: UNSIGNED
+      valuemap:
+        name: Zabbix host availability
+      tags:
+      - tag: component
+        value: availability
+    valuemaps:
+    - uuid: f4df018619db459984e4bce7a8478ea3
+      name: Zabbix host availability
+      mappings:
+      - value: '0'
+        newvalue: not available
+      - value: '1'
+        newvalue: available
+      - value: '2'
+        newvalue: unknown
+    macros:
+    - macro: '{$SNMP_COMMUNITY}'
+      value: public
+    - macro: '{$V.LOW.WARN}'
+      value: '207'
+      description: 'Per EN 50160: -10% of 230V nominal'
+    - macro: '{$V.LOW.CRIT}'
+      value: '195'
+      description: 'Per EN 50160 extreme: -15% of 230V'
+    - macro: '{$V.HIGH.WARN}'
+      value: '253'
+      description: 'Per EN 50160: +10% of 230V nominal'
+    - macro: '{$V.HIGH.CRIT}'
+      value: '264'
+      description: 'Per EN 50160 extreme: +15% of 230V'
+    - macro: '{$FREQ.LOW.WARN}'
+      value: '49.5'
+      description: 'Per EN 50160: 50 Hz -1%'
+    - macro: '{$FREQ.LOW.CRIT}'
+      value: '49'
+      description: 'Per EN 50160 extreme: 50 Hz -2%'
+    - macro: '{$FREQ.HIGH.WARN}'
+      value: '50.5'
+      description: 'Per EN 50160: 50 Hz +1%'
+    - macro: '{$FREQ.HIGH.CRIT}'
+      value: '51'
+      description: 'Per EN 50160 extreme: 50 Hz +2%'
+    - macro: '{$THD.V.WARN}'
+      value: '5'
+      description: IEEE 519-2014 individual harmonic limit
+    - macro: '{$THD.V.CRIT}'
+      value: '8'
+      description: EN 50160 / IEEE 519-2014 THD-V limit
+    - macro: '{$PF.LOW.WARN}'
+      value: '0.7'
+      description: Below 0.7 indicates inefficient/inductive load
+  triggers:
+  - uuid: 7b665767f8e4478ab8675d5a939df785
+    expression: last(/Janitza UMG96 by SNMP/voltage_l1n)<{$V.LOW.WARN} and last(/Janitza UMG96 by SNMP/voltage_l1n)>1
+    name: 'L1-N voltage low on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: WARNING
+  - uuid: 5b11d07f5c5e45c8936246423a9eeae0
+    expression: last(/Janitza UMG96 by SNMP/voltage_l1n)<{$V.LOW.CRIT} and last(/Janitza UMG96 by SNMP/voltage_l1n)>1
+    name: 'L1-N voltage critically low on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: HIGH
+  - uuid: 81f8917890d64c32b201e6e6aefa1086
+    expression: last(/Janitza UMG96 by SNMP/voltage_l1n)>{$V.HIGH.WARN}
+    name: 'L1-N voltage high on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: WARNING
+  - uuid: 419f355a74ee4be08e381e745cf113d7
+    expression: last(/Janitza UMG96 by SNMP/voltage_l1n)>{$V.HIGH.CRIT}
+    name: 'L1-N voltage critically high on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: HIGH
+  - uuid: 495c1100c4664f7984379460ab1a3055
+    expression: last(/Janitza UMG96 by SNMP/voltage_l2n)<{$V.LOW.WARN} and last(/Janitza UMG96 by SNMP/voltage_l2n)>1
+    name: 'L2-N voltage low on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: WARNING
+  - uuid: 7a6913f43f3840b197476fbe7f4cace8
+    expression: last(/Janitza UMG96 by SNMP/voltage_l2n)<{$V.LOW.CRIT} and last(/Janitza UMG96 by SNMP/voltage_l2n)>1
+    name: 'L2-N voltage critically low on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: HIGH
+  - uuid: a696429d3feb4067ae1269349fdaa99d
+    expression: last(/Janitza UMG96 by SNMP/voltage_l2n)>{$V.HIGH.WARN}
+    name: 'L2-N voltage high on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: WARNING
+  - uuid: 057090cbcbb944eba66e10b69cccc083
+    expression: last(/Janitza UMG96 by SNMP/voltage_l2n)>{$V.HIGH.CRIT}
+    name: 'L2-N voltage critically high on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: HIGH
+  - uuid: 571171115c094d1992eb68fef1d646a1
+    expression: last(/Janitza UMG96 by SNMP/voltage_l3n)<{$V.LOW.WARN} and last(/Janitza UMG96 by SNMP/voltage_l3n)>1
+    name: 'L3-N voltage low on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: WARNING
+  - uuid: eceec1aa84b545dd98e820154dcc61b1
+    expression: last(/Janitza UMG96 by SNMP/voltage_l3n)<{$V.LOW.CRIT} and last(/Janitza UMG96 by SNMP/voltage_l3n)>1
+    name: 'L3-N voltage critically low on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: HIGH
+  - uuid: 0240dc44a05b4d498a5e4b128005df7f
+    expression: last(/Janitza UMG96 by SNMP/voltage_l3n)>{$V.HIGH.WARN}
+    name: 'L3-N voltage high on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: WARNING
+  - uuid: cebc57962f9449b09c14b81e436f48e0
+    expression: last(/Janitza UMG96 by SNMP/voltage_l3n)>{$V.HIGH.CRIT}
+    name: 'L3-N voltage critically high on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: HIGH
+  - uuid: 5b939b90bf334e7bb4d17ebb069d1075
+    expression: last(/Janitza UMG96 by SNMP/cosphi_total)<{$PF.LOW.WARN} and abs(last(/Janitza UMG96 by SNMP/cosphi_total))>0.01
+    name: 'Power factor low on {HOST.NAME}: {ITEM.LASTVALUE}'
+    priority: INFO
+  - uuid: cf9b50047b2d4527bc22f9a2e9a72559
+    expression: last(/Janitza UMG96 by SNMP/thd_voltage_l1)>{$THD.V.WARN}
+    name: 'THD voltage L1 high on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    priority: INFO
+  - uuid: 6fb99f3ee9144320ab830ddfb4f831c7
+    expression: last(/Janitza UMG96 by SNMP/thd_voltage_l1)>{$THD.V.CRIT}
+    name: 'THD voltage L1 above EN 50160 limit on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    priority: WARNING
+  - uuid: 9301fe48c51641e2b68d4c8cdcd90fa6
+    expression: last(/Janitza UMG96 by SNMP/thd_voltage_l2)>{$THD.V.WARN}
+    name: 'THD voltage L2 high on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    priority: INFO
+  - uuid: 8525c34fea6740a0bbfea6ba72f1ff11
+    expression: last(/Janitza UMG96 by SNMP/thd_voltage_l2)>{$THD.V.CRIT}
+    name: 'THD voltage L2 above EN 50160 limit on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    priority: WARNING
+  - uuid: 485ae95d76684ad89f838cabc9b1cdeb
+    expression: last(/Janitza UMG96 by SNMP/thd_voltage_l3)>{$THD.V.WARN}
+    name: 'THD voltage L3 high on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    priority: INFO
+  - uuid: a43fd12f2f344fc9ab747be692e3d504
+    expression: last(/Janitza UMG96 by SNMP/thd_voltage_l3)>{$THD.V.CRIT}
+    name: 'THD voltage L3 above EN 50160 limit on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    priority: WARNING
+  - uuid: 089178930d51422ebc5a6d8303d30315
+    expression: last(/Janitza UMG96 by SNMP/frequency)<{$FREQ.LOW.WARN} and last(/Janitza UMG96 by SNMP/frequency)>1
+    name: 'Frequency low on {HOST.NAME}: {ITEM.LASTVALUE} Hz'
+    priority: WARNING
+  - uuid: 59415fcf891946d68add46a7eab55be4
+    expression: last(/Janitza UMG96 by SNMP/frequency)<{$FREQ.LOW.CRIT} and last(/Janitza UMG96 by SNMP/frequency)>1
+    name: 'Frequency critically low on {HOST.NAME}: {ITEM.LASTVALUE} Hz'
+    priority: HIGH
+  - uuid: dbdbdabdd3084891b44b93a7230d3de1
+    expression: last(/Janitza UMG96 by SNMP/frequency)>{$FREQ.HIGH.WARN}
+    name: 'Frequency high on {HOST.NAME}: {ITEM.LASTVALUE} Hz'
+    priority: WARNING
+  - uuid: 1d04cfde0b7b4695b540e0edc785f8e9
+    expression: last(/Janitza UMG96 by SNMP/frequency)>{$FREQ.HIGH.CRIT}
+    name: 'Frequency critically high on {HOST.NAME}: {ITEM.LASTVALUE} Hz'
+    priority: HIGH
+  - uuid: 3c880c3f481f48f797d1e6cd070e0ecf
+    expression: max(/Janitza UMG96 by SNMP/zabbix[host,snmp,available],#3)=0
+    name: SNMP unreachable on {HOST.NAME}
+    priority: HIGH
+  - uuid: 47b923d885144822913266c20d6e5891
+    expression: nodata(/Janitza UMG96 by SNMP/frequency,5m)=1
+    name: Meter not reporting on {HOST.NAME}
+    priority: AVERAGE
+  - uuid: cfbcb9a7bcdd47a4b0eebb41f6f64451
+    expression: change(/Janitza UMG96 by SNMP/energy_active_total)<-1000
+    name: Energy counter reset detected on {HOST.NAME}
+    priority: INFO
+    description: "Active energy counter went backward by >1 kWh \u2014 meter was reset or rolled over. Affects energy bill\
+      \ calculations."
+    manual_close: 'YES'
+

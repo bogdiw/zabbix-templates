@@ -422,6 +422,19 @@ zabbix_export:
         value: ups
       - tag: vendor
         value: eaton
+    - uuid: 1b9517b121f845c6a3ca6d581494d250
+      name: SNMP availability
+      type: INTERNAL
+      key: zabbix[host,snmp,available]
+      delay: 1m
+      history: 7d
+      trends: '0'
+      value_type: UNSIGNED
+      valuemap:
+        name: Zabbix host availability
+      tags:
+      - tag: component
+        value: availability
     discovery_rules:
     - uuid: baa856b50f2a4575bab9bcf0b31748d3
       name: Input phases discovery
@@ -681,6 +694,15 @@ zabbix_export:
         newvalue: Inhibited
       - value: '7'
         newvalue: Scheduled
+    - uuid: b5673307fa614a88834eeaf8c13bddc4
+      name: Zabbix host availability
+      mappings:
+      - value: '0'
+        newvalue: not available
+      - value: '1'
+        newvalue: available
+      - value: '2'
+        newvalue: unknown
     macros:
     - macro: '{$SNMP_COMMUNITY}'
       value: public
@@ -721,5 +743,9 @@ zabbix_export:
   - uuid: fa3c054bbc664f6ebf57eabbf24bf998
     expression: last(/Eaton 93PM by SNMP/ups.test.battery_status)=3
     name: UPS battery test failed on {HOST.NAME}
+    priority: HIGH
+  - uuid: 98b8b12f613347d3afa35a2449dc4e1e
+    expression: max(/Eaton 93PM by SNMP/zabbix[host,snmp,available],#3)=0
+    name: SNMP unreachable on {HOST.NAME}
     priority: HIGH
 
