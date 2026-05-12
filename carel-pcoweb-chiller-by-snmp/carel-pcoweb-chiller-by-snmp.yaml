@@ -266,14 +266,6 @@ zabbix_export:
           value: di
         - tag: carel_index
           value: '{#SNMPINDEX}'
-        trigger_prototypes:
-        - uuid: 168b40593b874e56b522b1121003156a
-          expression: change(/Carel pCOWeb chiller by SNMP/carel.di[{#SNMPINDEX}])<>0
-          name: 'Chiller di_{#SNMPINDEX} state changed on {HOST.NAME}: {ITEM.LASTVALUE}'
-          priority: INFO
-          description: "Digital input state change detected. Without OEM mapping we cannot distinguish 'compressor started'\
-            \ from 'alarm activated' \u2014 investigate."
-          manual_close: 'YES'
     valuemaps:
     - uuid: 93f920305d974c339956326242cc3322
       name: Zabbix host availability
