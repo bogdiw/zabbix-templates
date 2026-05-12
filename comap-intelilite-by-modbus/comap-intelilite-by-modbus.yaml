@@ -7,348 +7,961 @@ zabbix_export:
   - uuid: 7d03b41cfd1748b99c780497218d3faa
     template: ComAp InteliLite by Modbus
     name: ComAp InteliLite by Modbus
-    description: ComAp InteliLite NT AMF26-P (and family) generator controller via Modbus TCP. Polls fixed standard addresses
-      (engine, generator electrical, mains, alarms). Requires a passive Zabbix Agent 2 with the modbus plugin (the zabbix-agent2-modbus
-      deployment in hvac ns at 10050). Set host's Agent interface to that service. Set {$MODBUS.ENDPOINT} = tcp://<gen-ip>:502
-      and {$MODBUS.SLAVE} = 1.
+    description: "ComAp InteliLite NT AMF26P alerts — reads from InfluxDB via HTTP\
+      \ Flux queries.\nNO direct Modbus polling — Telegraf is the sole Modbus client\
+      \ (IB-Lite is 1-client only).\nPer-host override: {$INFLUX.HOST} = generator-a\
+      \ or generator-b.\nSet {$INFLUX.TOKEN} as secret text — mint via:\n  influx\
+      \ auth create --org cloudxedge --read-bucket 3d6b114d4c2b08c9 --description\
+      \ zabbix-readonly\nIndustry-standard alerts (NFPA 110, ISO 8528-5) with engine_state\
+      \ gating."
     groups:
     - name: Templates/HVAC
-    items:
-    - uuid: f31475958f8147bba8775aff35c8f866
-      name: 'Generator: Nominal power'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8276,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: kW
-    - uuid: f3b77b5f8aea498f9649a7a3fa051b60
-      name: 'Generator: Nominal current'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8275,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: A
-    - uuid: 8cca15b1cbcb4354ac471724e25b9cd8
-      name: 'Generator: Nominal voltage L-N'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8277,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: V
-    - uuid: a28f81ae194242999ffdef91616aa8f3
-      name: 'Generator: Nominal frequency'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8278,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: Hz
-    - uuid: f8abbec0e0024180a33a0833c5c15186
-      name: 'Generator: Nominal RPM'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8252,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: RPM
-    - uuid: 489b9291e2a24075be4ffab330b7148c
-      name: 'Generator: Controller mode'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8315,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-    - uuid: 1c604797eec54742aed450a4646ec54f
-      name: 'Generator: Engine RPM'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8253,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: RPM
-    - uuid: 4eca97404f464a89ab4a8af5dcb744bd
-      name: 'Generator: Coolant temperature'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8227,1,int16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: FLOAT
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: "\xB0C"
-      preprocessing:
-      - type: MATCHES_REGEX
-        parameters:
-        - ^(?!-?32768$).*$
-        error_handler: DISCARD_VALUE
-    - uuid: e49000cf01a04202ad6d9049da3ff06e
-      name: 'Generator: Fuel level'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8228,1,int16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: FLOAT
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: '%'
-      preprocessing:
-      - type: MATCHES_REGEX
-        parameters:
-        - ^(?!-?32768$).*$
-        error_handler: DISCARD_VALUE
-    - uuid: a6ef351dcc5a4f48946526976998bef9
-      name: 'Generator: Run hours'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8229,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: h
-    - uuid: 69e2edb723bc480ebb8c545ef0855b00
-      name: 'Generator: Gen current L1'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8202,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: A
-    - uuid: cc434710d14644899819a472a1c9a925
-      name: 'Generator: Gen current L2'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8203,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: A
-    - uuid: e300274f59cb4414945301469cd3105a
-      name: 'Generator: Gen current L3'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8204,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: A
-    - uuid: 3bbe1db2a98145a091333a3b285a3de1
-      name: 'Generator: Gen active power'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8205,1,int16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: FLOAT
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: kW
-    - uuid: 3024c70219354ecfb464896c032dac58
-      name: 'Generator: Gen apparent power'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8208,1,int16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: FLOAT
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: kVA
-    - uuid: 0de9706b55c04042a730bee624cfe8d2
-      name: 'Generator: Gen power factor'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8211,1,int16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: FLOAT
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      preprocessing:
-      - type: MULTIPLIER
-        parameters:
-        - '0.001'
-    - uuid: d10d68d091bd4feeb0b8eb874f841e93
-      name: 'Generator: Mains frequency'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8210,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: FLOAT
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: Hz
-      preprocessing:
-      - type: MULTIPLIER
-        parameters:
-        - '0.1'
-    - uuid: fca9e572a18043aab13a998213655b3a
-      name: 'Generator: Mains voltage L1'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8213,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: V
-    - uuid: ba0e734f4f864a5bbd590df23d90c085
-      name: 'Generator: Energy total kWh'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8200,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-      units: kWh
-    - uuid: d5beba6068964e5fa8d3218ed3db8082
-      name: 'Generator: Binary inputs word 2'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8301,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-    - uuid: ac2afc8102c14de0808147aef6e8beb2
-      name: 'Generator: Binary inputs word 3'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8302,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
-    - uuid: b06a4749471a44aaa3771cec075b3203
-      name: 'Generator: Binary inputs word 4'
-      key: modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8303,1,uint16]
-      delay: 1m
-      history: 31d
-      trends: 365d
-      value_type: UNSIGNED
-      tags:
-      - tag: class
-        value: generator
-      - tag: vendor
-        value: comap
     macros:
-    - macro: '{$MODBUS.ENDPOINT}'
-      value: tcp://10.1.109.53:502
-      description: Modbus TCP endpoint URL of the generator IB-Lite
-    - macro: '{$MODBUS.SLAVE}'
-      value: '1'
-      description: "Modbus unit ID \u2014 typically 1 for InteliLite NT"
-    - macro: '{$COOLANT.HIGH}'
+    - macro: '{$INFLUX.URL}'
+      value: http://10.1.250.30:30086
+      description: InfluxDB v2 base URL (NodePort on logmon-k8s)
+    - macro: '{$INFLUX.ORG}'
+      value: cloudxedge
+      description: InfluxDB organization
+    - macro: '{$INFLUX.TOKEN}'
+      value: PLACEHOLDER_OVERRIDE_PER_HOST_OR_TEMPLATE
+      description: 'InfluxDB read-only token (mint with: influx auth create --read-bucket
+        <id>)'
+      type: SECRET_TEXT
+    - macro: '{$INFLUX.HOST}'
+      value: generator-a
+      description: Telegraf host tag for this gen (generator-a / generator-b)
+    - macro: '{$GEN.NOMINAL.RPM}'
+      value: '1500'
+      description: Nominal RPM (1500=50Hz, 1800=60Hz)
+    - macro: '{$GEN.NOMINAL.V.LN}'
+      value: '230'
+      description: Nominal phase voltage L-N
+    - macro: '{$GEN.OVERSPEED.PCT}'
+      value: '110'
+      description: Overspeed threshold (%)
+    - macro: '{$GEN.UNDERSPEED.PCT}'
       value: '95'
-      description: "Coolant temp high alarm threshold (\xB0C)"
-    - macro: '{$OIL.LOW}'
-      value: '1.5'
-      description: Oil pressure low alarm threshold (bar)
-    - macro: '{$FUEL.LOW}'
-      value: '20'
-      description: Fuel level low warn threshold (%)
-    - macro: '{$BATT.LOW}'
+      description: Underspeed under-load threshold (%)
+    - macro: '{$BATT.LOW.WARN}'
+      value: '11.8'
+      description: Battery low warning (V) — default for 12V system; override to 23.5
+        for 24V
+    - macro: '{$BATT.LOW.CRIT}'
       value: '11.5'
-      description: Battery voltage low alarm threshold (V)
+      description: Battery critical (V) — default for 12V; override to 22.5 for 24V
+    - macro: '{$BATT.HIGH}'
+      value: '15.5'
+      description: Battery overvoltage (V) — default for 12V; override to 30.0 for
+        24V
+    - macro: '{$OIL.LOW.BAR}'
+      value: '1.5'
+      description: Low oil pressure trip while running (bar)
+    - macro: '{$FUEL.LOW.WARN.PCT}'
+      value: '50'
+      description: Fuel level warning (%)
+    - macro: '{$FUEL.LOW.CRIT.PCT}'
+      value: '25'
+      description: Fuel level critical NFPA 110 (%)
+    - macro: '{$COOLANT.HIGH.C}'
+      value: '98'
+      description: Coolant high temp warn (°C J1939)
+    - macro: '{$COOLANT.CRIT.C}'
+      value: '104'
+      description: Coolant shutdown temp (°C J1939)
+    - macro: '{$EARTH.FAULT.A}'
+      value: '5'
+      description: Earth fault current threshold (A)
+    - macro: '{$SERVICE.LOW.HOURS.WARN}'
+      value: '50'
+      description: Service hours-remaining warn
+    - macro: '{$SERVICE.LOW.HOURS.CRIT}'
+      value: '10'
+      description: Service hours-remaining critical
+    items:
+    - uuid: f8d2b07845ef4d48a04e23bac71d6f44
+      name: 'Status: Engine state'
+      type: HTTP_AGENT
+      key: influxdb.generator.engine_state
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="engine_state") |> last() |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      units: ''
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: status
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+      valuemap:
+        name: ComAp Engine State
+    - uuid: a53845b49c174d87854497cf8c2cd78a
+      name: 'Engine: RPM'
+      type: HTTP_AGENT
+      key: influxdb.generator.engine_rpm
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="engine_rpm") |> last() |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: RPM
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: engine
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 159a217512f44ff69b2b2ed6dfdb93f4
+      name: 'Status: Binary inputs'
+      type: HTTP_AGENT
+      key: influxdb.generator.bin_inputs
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="bin_inputs") |> last() |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: ''
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: status
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: adcf9daae0314c219e2a03f038350fec
+      name: 'Engine: Oil pressure'
+      type: HTTP_AGENT
+      key: influxdb.generator.oil_pressure_bar
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="oil_pressure_bar") |> last() |>
+        keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: Bar
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: engine
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 76c0126b653242fcb769587d8a3ae0f6
+      name: 'Engine: Battery voltage'
+      type: HTTP_AGENT
+      key: influxdb.generator.battery_voltage
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="battery_voltage") |> last() |>
+        keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: V
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: engine
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: d1aadf5e469e48f49ba3fa5877087af7
+      name: 'Engine: Fuel level'
+      type: HTTP_AGENT
+      key: influxdb.generator.fuel_level_pct
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="fuel_level_pct") |> last() |>
+        keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: '%'
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: engine
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 4ec53ca4281f4a08a6b2d5e9837db86d
+      name: 'Mains: Voltage L1-N'
+      type: HTTP_AGENT
+      key: influxdb.generator.mains_voltage_l1n
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="mains_voltage_l1n") |> last()
+        |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: V
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: mains
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: ec47afb8628d4bec824c76ec825018f0
+      name: 'Mains: Voltage L2-N'
+      type: HTTP_AGENT
+      key: influxdb.generator.mains_voltage_l2n
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="mains_voltage_l2n") |> last()
+        |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: V
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: mains
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 8a77099e1ea14ebc87bdf93f0dd01668
+      name: 'Mains: Voltage L3-N'
+      type: HTTP_AGENT
+      key: influxdb.generator.mains_voltage_l3n
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="mains_voltage_l3n") |> last()
+        |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: V
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: mains
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 66e4eba47dca48788b0bcc8cebda5f55
+      name: 'Generator: Earth fault current'
+      type: HTTP_AGENT
+      key: influxdb.generator.earth_fault_a
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="earth_fault_a") |> last() |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: A
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: generator
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 75566b653f06497288b07f38e821b115
+      name: 'ECU: Coolant temp'
+      type: HTTP_AGENT
+      key: influxdb.generator.ecu_coolant_temp_c
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="ecu_coolant_temp_c") |> last()
+        |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: °C
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: ecu
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: e866c5a5f55e43e3b5c70abc8f302a54
+      name: 'Stats: Number of starts'
+      type: HTTP_AGENT
+      key: influxdb.generator.num_starts
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="num_starts") |> last() |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: ''
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: stats
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 1fe10d40b5b44a959b91b43c921f8882
+      name: 'Service: Basic countdown'
+      type: HTTP_AGENT
+      key: influxdb.generator.service_basic_h
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="service_basic_h") |> last() |>
+        keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: h
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: service
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: efd89eb0a4864e9ba1227a4ab9885171
+      name: 'Service: Level 2 countdown'
+      type: HTTP_AGENT
+      key: influxdb.generator.service_lvl2_h
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="service_lvl2_h") |> last() |>
+        keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: h
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: service
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: c0a4fb70f529476cb7ee9b84ba00321c
+      name: 'Service: Level 3 countdown'
+      type: HTTP_AGENT
+      key: influxdb.generator.service_lvl3_h
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="service_lvl3_h") |> last() |>
+        keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: h
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: service
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: b42d2c66fa2b4856b6c5641e456405df
+      name: 'Status: Breaker state'
+      type: HTTP_AGENT
+      key: influxdb.generator.breaker_state
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="breaker_state") |> last() |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: UNSIGNED
+      units: ''
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: status
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+      valuemap:
+        name: ComAp Breaker State
+    - uuid: 782bdd9e544844eab5b2703d791ea24a
+      name: 'Generator: Frequency'
+      type: HTTP_AGENT
+      key: influxdb.generator.gen_frequency
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="gen_frequency") |> last() |> keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: Hz
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: generator
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    - uuid: 7c36836bec324b95981dcb87456bb72f
+      name: 'Generator: Active power total'
+      type: HTTP_AGENT
+      key: influxdb.generator.gen_power_total
+      url: '{$INFLUX.URL}/api/v2/query'
+      query_fields:
+      - name: org
+        value: '{$INFLUX.ORG}'
+      request_method: POST
+      post_type: RAW
+      posts: from(bucket:"hvac") |> range(start:-3m) |> filter(fn:(r) => r._measurement=="generator"
+        and r.host=="{$INFLUX.HOST}" and r._field=="gen_power_total") |> last() |>
+        keep(columns:["_value"])
+      headers:
+      - name: Authorization
+        value: Token {$INFLUX.TOKEN}
+      - name: Content-Type
+        value: application/vnd.flux
+      delay: 1m
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: kW
+      tags:
+      - tag: class
+        value: generator
+      - tag: vendor
+        value: comap
+      - tag: subsystem
+        value: generator
+      - tag: source
+        value: influxdb
+      preprocessing:
+      - type: REGEX
+        parameters:
+        - ',_result,\d+,([-0-9.eE]+)'
+        - \1
+    valuemaps:
+    - uuid: 048442bef4244d84bb71d94f1b27693d
+      name: ComAp Engine State
+      mappings:
+      - value: '21'
+        newvalue: Init
+      - value: '22'
+        newvalue: NotReady
+      - value: '23'
+        newvalue: Prestart
+      - value: '24'
+        newvalue: Cranking
+      - value: '25'
+        newvalue: Pause
+      - value: '26'
+        newvalue: Starting
+      - value: '27'
+        newvalue: Running
+      - value: '28'
+        newvalue: Loaded
+      - value: '29'
+        newvalue: Stop
+      - value: '30'
+        newvalue: Shutdown
+      - value: '31'
+        newvalue: Ready
+      - value: '32'
+        newvalue: Cooling
+      - value: '33'
+        newvalue: EmergMan
+      - value: '34'
+        newvalue: MainsOper
+      - value: '35'
+        newvalue: MainsFlt
+      - value: '36'
+        newvalue: IslOper
+      - value: '37'
+        newvalue: MainsRet
+      - value: '38'
+        newvalue: BrksOff
+      - value: '39'
+        newvalue: NoTimer
+      - value: '40'
+        newvalue: MCBClose
+      - value: '41'
+        newvalue: ReturnDel
+      - value: '42'
+        newvalue: TransDel
+      - value: '43'
+        newvalue: IdleRun
+      - value: '44'
+        newvalue: MinStabTO
+      - value: '45'
+        newvalue: MaxStabTO
+      - value: '46'
+        newvalue: AfterCool
+      - value: '47'
+        newvalue: GCBOpen
+      - value: '48'
+        newvalue: StopValve
+      - value: '49'
+        newvalue: StartDel
+      - value: '50'
+        newvalue: 1Ph
+      - value: '51'
+        newvalue: 3PD
+      - value: '52'
+        newvalue: 3PY
+      - value: '53'
+        newvalue: MRSMode
+    - uuid: fcf08df19b4f46a0a4a3e90a32c08599
+      name: ComAp Breaker State
+      mappings:
+      - value: '0'
+        newvalue: Unknown
+      - value: '1'
+        newvalue: BothOpen
+      - value: '2'
+        newvalue: MainsClosed-GenOpen
+      - value: '3'
+        newvalue: MainsOpen-GenClosed
+      - value: '4'
+        newvalue: BothClosedParallel
+      - value: '34'
+        newvalue: ReadyStandby
+      - value: '35'
+        newvalue: MainsNormal
+      - value: '36'
+        newvalue: GenSupplyingLoad
   triggers:
-  - uuid: 4b31642a35e747119a4cd48cde47ffc9
-    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8315,1,uint16])<>2
-    name: 'Generator NOT in AUTO mode on {HOST.NAME}: {ITEM.LASTVALUE}'
-    priority: WARNING
-  - uuid: e2fb6073c0c9499d960efd5285c5b9a5
-    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8227,1,int16])>{$COOLANT.HIGH}
-    name: "Coolant temp high on {HOST.NAME}: {ITEM.LASTVALUE} \xB0C"
+  - uuid: 11aaebb0b4d649edba846da2bd5b23d0
+    expression: nodata(/ComAp InteliLite by Modbus/influxdb.generator.engine_state,15m)=1
+    name: 'Generator: Modbus poller unreachable on {HOST.NAME}'
     priority: HIGH
-  - uuid: 107b3e4920fc42e6993166ab7bf805fd
-    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8228,1,int16])<{$FUEL.LOW}
-      and last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8228,1,int16])>=0
-    name: 'Fuel level low on {HOST.NAME}: {ITEM.LASTVALUE}%'
+    description: No Modbus data for 15 min. Could be IB-Lite client-limit contention
+      or panel reboot. Genset itself may still be fine — Telegraf has independent
+      visibility.
+    manual_close: 'YES'
+  - uuid: e461382b2589405396c921e9f14f09c5
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.engine_rpm)>({$GEN.NOMINAL.RPM}*{$GEN.OVERSPEED.PCT}/100)
+    name: 'Generator: Overspeed shutdown on {HOST.NAME}'
+    priority: DISASTER
+    description: Engine speed exceeded {$GEN.OVERSPEED.PCT}% of nominal RPM. Mechanical
+      risk.
+    manual_close: 'YES'
+  - uuid: 0d6d67e6963542e8994babe7f78bcd04
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)>=27
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)<=28 and
+      last(/ComAp InteliLite by Modbus/influxdb.generator.engine_rpm)>1200 and last(/ComAp
+      InteliLite by Modbus/influxdb.generator.oil_pressure_bar)<{$OIL.LOW.BAR}
+    name: 'Generator: Low oil pressure while running on {HOST.NAME}'
+    priority: DISASTER
+    description: Oil pressure {ITEM.LASTVALUE} bar < {$OIL.LOW.BAR} bar while engine
+      running. Bearing seizure risk.
+    manual_close: 'YES'
+  - uuid: 1e36fc2ceb3e4ca9b43b05660bb0c567
+    expression: bitand(last(/ComAp InteliLite by Modbus/influxdb.generator.bin_inputs),4)=4
+    name: 'Generator: Low coolant level on {HOST.NAME}'
+    priority: DISASTER
+    description: Low coolant level sensor active (bin_inputs bit 2). NFPA 110 critical.
+    manual_close: 'YES'
+  - uuid: 46b7750907984b00bf7845a5130f4d17
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.battery_voltage)<{$BATT.LOW.CRIT}
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.battery_voltage)>5
+    name: 'Generator: Battery voltage critically low on {HOST.NAME}'
+    priority: HIGH
+    description: Battery {ITEM.LASTVALUE}V < {$BATT.LOW.CRIT}V. Cannot crank — genset
+      may fail to start. Not in-flight emergency; downgraded from Disaster.
+    manual_close: 'YES'
+  - uuid: 20cbc93227394689a7a811e2371d7905
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.mains_voltage_l1n)<({$GEN.NOMINAL.V.LN}*0.85)
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.mains_voltage_l2n)<({$GEN.NOMINAL.V.LN}*0.85)
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.mains_voltage_l3n)<({$GEN.NOMINAL.V.LN}*0.85)
+    name: 'Generator: Mains failure detected on {HOST.NAME}'
+    priority: HIGH
+    description: All 3 mains phases < 85% of nominal. AMF should start the genset.
+    manual_close: 'YES'
+  - uuid: 629e21c06cc44b6f85497566ea163412
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.earth_fault_a)>{$EARTH.FAULT.A}
+    name: 'Generator: Earth fault current on {HOST.NAME}'
+    priority: HIGH
+    description: Earth fault {ITEM.LASTVALUE}A > {$EARTH.FAULT.A}A. Insulation fault
+      on alternator or load.
+    manual_close: 'YES'
+  - uuid: b901de102b1c4d798bea6e09dc38f745
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.fuel_level_pct)<{$FUEL.LOW.CRIT.PCT}
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.fuel_level_pct)>=0
+    name: 'Generator: Fuel level critically low on {HOST.NAME}'
+    priority: HIGH
+    description: Fuel {ITEM.LASTVALUE}% < {$FUEL.LOW.CRIT.PCT}% (NFPA 110 critical).
+      Refill now.
+    manual_close: 'YES'
+  - uuid: 1daf75495d6241f183fa575623a31a6a
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.battery_voltage)<{$BATT.LOW.WARN}
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.battery_voltage)>={$BATT.LOW.CRIT}
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)<24
+    name: 'Generator: Battery low (engine stopped) on {HOST.NAME}'
+    priority: HIGH
+    description: Battery {ITEM.LASTVALUE}V (engine stopped). Charger may be failing.
+    manual_close: 'YES'
+  - uuid: cf5870d05eb54ea1813a460040603ff7
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.ecu_coolant_temp_c)>{$COOLANT.HIGH.C}
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.ecu_coolant_temp_c)<200
+    name: 'Generator: ECU coolant temperature high on {HOST.NAME}'
+    priority: HIGH
+    description: Coolant {ITEM.LASTVALUE}°C > {$COOLANT.HIGH.C}°C (only valid if J1939
+      ECU connected).
+    manual_close: 'YES'
+  - uuid: 48d6cd42d55e4888ac2aeb96f905e63a
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)=28
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.engine_rpm)<({$GEN.NOMINAL.RPM}*{$GEN.UNDERSPEED.PCT}/100)
+    name: 'Generator: Underspeed while loaded on {HOST.NAME}'
+    priority: HIGH
+    description: Engine RPM < {$GEN.UNDERSPEED.PCT}% of nominal while Loaded. Governor
+      or fuel issue.
+    manual_close: 'YES'
+  - uuid: b39a139cdc754f80991ca5946375ea2f
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)=22
+      or last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)=21
+    name: 'Generator: NOT in AUTO mode on {HOST.NAME}'
     priority: WARNING
-  - uuid: 8f7ff15f05bc4267820fef74ca29f023
-    expression: last(/ComAp InteliLite by Modbus/modbus.get[{$MODBUS.ENDPOINT},{$MODBUS.SLAVE},3,8253,1,uint16])>500
-    name: Generator running on {HOST.NAME}
+    description: Engine state Init/NotReady. Check controller mode switch — genset
+      will not auto-start.
+    manual_close: 'YES'
+  - uuid: dca445590ba74300b6cafddb5e5141ab
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.fuel_level_pct)<{$FUEL.LOW.WARN.PCT}
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.fuel_level_pct)>={$FUEL.LOW.CRIT.PCT}
+    name: 'Generator: Fuel level low on {HOST.NAME}'
+    priority: WARNING
+    description: Fuel {ITEM.LASTVALUE}% < {$FUEL.LOW.WARN.PCT}%. Schedule refill.
+    manual_close: 'YES'
+  - uuid: 76a383feed2b4f84bce9b69b7721d5ca
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.battery_voltage)>{$BATT.HIGH}
+    name: 'Generator: Battery overvoltage on {HOST.NAME}'
+    priority: WARNING
+    description: Battery {ITEM.LASTVALUE}V > {$BATT.HIGH}V. Charger may be faulty.
+    manual_close: 'YES'
+  - uuid: c6c158178d014509bda69c404a39cd0a
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.service_basic_h)<{$SERVICE.LOW.HOURS.CRIT}
+      or last(/ComAp InteliLite by Modbus/influxdb.generator.service_lvl2_h)<{$SERVICE.LOW.HOURS.CRIT}
+      or last(/ComAp InteliLite by Modbus/influxdb.generator.service_lvl3_h)<{$SERVICE.LOW.HOURS.CRIT}
+    name: 'Generator: Service due (any timer critically low) on {HOST.NAME}'
+    priority: WARNING
+    description: A service interval has < {$SERVICE.LOW.HOURS.CRIT}h remaining. Schedule
+      maintenance.
+    manual_close: 'YES'
+  - uuid: 684568072be2410aa6d4ad908dad9852
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)>=24
+      and last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)<=28 and
+      last(/ComAp InteliLite by Modbus/influxdb.generator.mains_voltage_l1n)>({$GEN.NOMINAL.V.LN}*0.9)
+    name: 'Generator: Unscheduled run on {HOST.NAME}'
+    priority: WARNING
+    description: Engine running while mains is healthy. Verify scheduled test or manual
+      run.
+    manual_close: 'YES'
+  - uuid: 70b3cd53ff2d49958a0b950da2a45e4c
+    expression: last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)=32
+      or last(/ComAp InteliLite by Modbus/influxdb.generator.engine_state)=46
+    name: 'Generator: Cooling cycle active on {HOST.NAME}'
     priority: INFO
-    description: "Engine RPM above 500 \u2014 generator is supplying load (or warming up)."
+    description: Engine in Cooling/AfterCool state. Cool-down sequence underway.
+    manual_close: 'YES'
 
