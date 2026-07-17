@@ -1,0 +1,280 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: ea8cdc789be643bdbda1cb2f5852e198
+      template: 'Wazuh Manager by HTTP'
+      name: 'Wazuh Manager by HTTP'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 2a05a2d3fa514187b759b8f6612ce551
+          name: 'Wazuh: agents active'
+          type: DEPENDENT
+          key: wazuh.agents.active
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.connection.active
+          master_item:
+            key: wazuh.api.raw
+        - uuid: 16098b141532497d8acbfd011094c808
+          name: 'Wazuh: agents disconnected'
+          type: DEPENDENT
+          key: wazuh.agents.disconnected
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.connection.disconnected
+          master_item:
+            key: wazuh.api.raw
+          triggers:
+            - uuid: e708c71cc31640218f4e0d889c86f0a2
+              expression: 'min(/Wazuh Manager by HTTP/wazuh.agents.disconnected,15m)>{$WAZUH.AGENTS.DISC.MAX}'
+              name: 'Wazuh: more than {$WAZUH.AGENTS.DISC.MAX} agents disconnected'
+              priority: WARNING
+        - uuid: e94385c37f4d43948f9478c2779f750b
+          name: 'Wazuh: agents never connected'
+          type: DEPENDENT
+          key: wazuh.agents.never_connected
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.connection.never_connected
+          master_item:
+            key: wazuh.api.raw
+        - uuid: b2480ee158284b6ba28b14ac5a3fe40d
+          name: 'Wazuh: agents total'
+          type: DEPENDENT
+          key: wazuh.agents.total
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.connection.total
+          master_item:
+            key: wazuh.api.raw
+        - uuid: d077f48abd9343c4b6321ccfa2f51741
+          name: 'Wazuh: alerts 24h Critical severity'
+          type: DEPENDENT
+          key: wazuh.alerts.critical
+          description: 'Rule level 15 or higher'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.critical
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: cd0569cffc474db9bf03bde70ec4b855
+          name: 'Wazuh: alerts 24h High severity'
+          type: DEPENDENT
+          key: wazuh.alerts.high
+          description: 'Rule level 12 to 14'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.high
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: 10a6d21d4e494501b284536646c2fce1
+          name: 'Wazuh: latest alerts (Medium+ severity, 24h)'
+          type: DEPENDENT
+          key: wazuh.alerts.latest
+          value_type: TEXT
+          description: 'Newest 3 alerts with rule level >= 7, severity-labeled'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.latest
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: 45c2e77bc8de4f9599323ba703b3c27e
+          name: 'Wazuh: latest Critical alert text'
+          type: DEPENDENT
+          key: wazuh.alerts.latest.critical
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.latest_critical
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: e6e8a86b49344a009183194cb8ccce26
+          name: 'Wazuh: latest High alert text'
+          type: DEPENDENT
+          key: wazuh.alerts.latest.high
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.latest_high
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: 924110e534a9434c835ddb1bdb6a1878
+          name: 'Wazuh: latest Medium alert text'
+          type: DEPENDENT
+          key: wazuh.alerts.latest.medium
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.latest_medium
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: 5847120c3ea54185b397296c88d71c66
+          name: 'Wazuh: alerts 24h Low severity'
+          type: DEPENDENT
+          key: wazuh.alerts.low
+          description: 'Rule level 0 to 6'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.low
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: 03974e7247444635a58bc1550155896d
+          name: 'Wazuh: alerts 24h Medium severity'
+          type: DEPENDENT
+          key: wazuh.alerts.medium
+          description: 'Rule level 7 to 11'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.medium
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: 257804e31c6c4d8e995d0d6cefca0537
+          name: 'Wazuh: alerts last 24h (raw)'
+          type: SCRIPT
+          key: wazuh.alerts.raw
+          delay: 5m
+          value_type: TEXT
+          params: |
+            var body = JSON.stringify({size:0, query:{range:{timestamp:{gte:'now-24h'}}},
+             aggs:{sev:{range:{field:'rule.level', ranges:[
+              {key:'low',from:0,to:7},{key:'medium',from:7,to:12},{key:'high',from:12,to:15},{key:'critical',from:15}]},
+              aggs:{latest:{top_hits:{size:1, sort:[{timestamp:{order:'desc'}}],
+               _source:['rule.level','rule.description','agent.name']}}}}}});
+            var req = new HttpRequest();
+            req.addHeader('Content-Type: application/json');
+            req.addHeader('Authorization: Basic ' + btoa('{$WAZUH.INDEXER.USER}:{$WAZUH.INDEXER.PASSWORD}'));
+            var r = req.post('{$WAZUH.INDEXER.URL}/wazuh-alerts-*/_search', body);
+            if (req.getStatus() != 200) throw 'indexer query failed: HTTP ' + req.getStatus();
+            var d = JSON.parse(r); var out = {total: d.hits.total.value, critical:0, high:0, medium:0, low:0,
+              latest_critical:'', latest_high:'', latest_medium:''};
+            var label = {critical:'Critical', high:'High', medium:'Medium', low:'Low'};
+            d.aggregations.sev.buckets.forEach(function(b){
+              out[b.key] = b.doc_count;
+              if (b.key === 'low') return;
+              var h = b.latest.hits.hits;
+              if (h.length) { var s = h[0]._source;
+                out['latest_'+b.key] = '[' + label[b.key] + '] ' +
+                  (s.agent && s.agent.name ? s.agent.name : 'manager') + ': ' + s.rule.description; }
+            });
+            return JSON.stringify(out);
+          description: 'Severity buckets from wazuh-indexer, same rule-level ranges as the dashboard panel.'
+          timeout: 20s
+        - uuid: 83099e62bb7b46f4901a7d8a2d104fe2
+          name: 'Wazuh: alerts 24h total'
+          type: DEPENDENT
+          key: wazuh.alerts.total
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.total
+          master_item:
+            key: wazuh.alerts.raw
+        - uuid: 42a868c344434c39b72472b6f95880b6
+          name: 'Wazuh: API raw data'
+          type: SCRIPT
+          key: wazuh.api.raw
+          delay: 2m
+          value_type: TEXT
+          params: |
+            var req = new HttpRequest();
+            req.addHeader('Authorization: Basic ' + btoa('{$WAZUH.API.USER}:{$WAZUH.API.PASSWORD}'));
+            var jwt = req.post('{$WAZUH.API.URL}/security/user/authenticate?raw=true');
+            if (req.getStatus() != 200) throw 'Wazuh API auth failed: HTTP ' + req.getStatus();
+            var req2 = new HttpRequest();
+            req2.addHeader('Authorization: Bearer ' + jwt);
+            var agents = JSON.parse(req2.get('{$WAZUH.API.URL}/agents/summary/status'));
+            if (req2.getStatus() != 200) throw 'agents query failed: HTTP ' + req2.getStatus();
+            var daemons = JSON.parse(req2.get('{$WAZUH.API.URL}/manager/status'));
+            return JSON.stringify({connection: agents.data.connection, config: agents.data.configuration, daemons: daemons.data.affected_items[0]});
+          description: 'Script item: JWT auth + agents summary + manager daemons, one JSON.'
+          timeout: 25s
+          triggers:
+            - uuid: 97b2a710da284ec887f18237357ce1d6
+              expression: 'nodata(/Wazuh Manager by HTTP/wazuh.api.raw,10m)=1'
+              name: 'Wazuh: API unreachable or collector failing'
+              priority: HIGH
+        - uuid: a9e084cb2615497488b30e5c29be1852
+          name: 'Wazuh: daemon analysisd'
+          type: DEPENDENT
+          key: wazuh.daemon.analysisd
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.daemons[''wazuh-analysisd'']'
+          master_item:
+            key: wazuh.api.raw
+        - uuid: ac63ccf0f517491dbde9090fbf4ffcd4
+          name: 'Wazuh: daemon remoted'
+          type: DEPENDENT
+          key: wazuh.daemon.remoted
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.daemons[''wazuh-remoted'']'
+          master_item:
+            key: wazuh.api.raw
+      macros:
+        - macro: '{$WAZUH.AGENTS.DISC.MAX}'
+          value: '5'
+          description: 'max tolerated disconnected agents'
+        - macro: '{$WAZUH.API.PASSWORD}'
+          type: SECRET_TEXT
+          description: 'API password (secret)'
+        - macro: '{$WAZUH.API.URL}'
+          value: 'https://wazuh-api.infra.cloudxedge.com'
+          description: 'Wazuh API base URL'
+        - macro: '{$WAZUH.API.USER}'
+          description: 'API user'
+        - macro: '{$WAZUH.INDEXER.PASSWORD}'
+          type: SECRET_TEXT
+          description: 'indexer password (secret)'
+        - macro: '{$WAZUH.INDEXER.URL}'
+          value: 'https://indexer.wazuh.svc.cluster.local:9200'
+          description: 'wazuh-indexer URL (in-cluster)'
+        - macro: '{$WAZUH.INDEXER.USER}'
+          description: 'indexer user'
+  triggers:
+    - uuid: b9e7f4ce941d48889b5be62625ce6622
+      expression: 'last(/Wazuh Manager by HTTP/wazuh.agents.active)=0 and last(/Wazuh Manager by HTTP/wazuh.agents.total)>0'
+      name: 'Wazuh: ALL agents disconnected'
+      priority: HIGH
+    - uuid: bf2de195325848bc9671a9ee8e3c486c
+      expression: 'last(/Wazuh Manager by HTTP/wazuh.daemon.analysisd)<>"running" or last(/Wazuh Manager by HTTP/wazuh.daemon.remoted)<>"running"'
+      name: 'Wazuh: core daemon not running (analysisd/remoted)'
+      priority: HIGH
+    - uuid: 928b9442c31f4151b797d8515ec23c45
+      expression: 'last(/Wazuh Manager by HTTP/wazuh.alerts.critical)>0 and length(last(/Wazuh Manager by HTTP/wazuh.alerts.latest.critical))>0'
+      name: 'Wazuh Critical alert on {HOST.NAME}: {ITEM.LASTVALUE2}'
+      priority: HIGH
+      manual_close: 'YES'
+    - uuid: 6d959aad463c4018918b27bee7678297
+      expression: 'last(/Wazuh Manager by HTTP/wazuh.alerts.high)>0 and length(last(/Wazuh Manager by HTTP/wazuh.alerts.latest.high))>0'
+      name: 'Wazuh High alert on {HOST.NAME}: {ITEM.LASTVALUE2}'
+      priority: HIGH
+      manual_close: 'YES'
+    - uuid: 7a5c394ec71442b0a16db1c838cf29fb
+      expression: 'last(/Wazuh Manager by HTTP/wazuh.alerts.medium)>0 and length(last(/Wazuh Manager by HTTP/wazuh.alerts.latest.medium))>0'
+      name: 'Wazuh Medium alert on {HOST.NAME}: {ITEM.LASTVALUE2}'
+      priority: AVERAGE
+      manual_close: 'YES'
