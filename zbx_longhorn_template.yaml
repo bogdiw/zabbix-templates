@@ -1,0 +1,278 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: 337ba0900acd407facb274be2ece8b16
+      template: 'Kubernetes Longhorn state by Zabbix Proxy'
+      name: 'Kubernetes Longhorn state by Zabbix Proxy'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 824771cdb6314173989376043666a21a
+          name: 'Get Longhorn Metrics'
+          type: HTTP_AGENT
+          key: longhorn.state.metrics
+          value_type: TEXT
+          url: '{$LONGHORN.API.URL}'
+          triggers:
+            - uuid: 176425acea9b492f9508b286d4bb0fd8
+              expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.state.metrics,#10)=0'
+              name: 'Failed to Get Longhorn Metrics'
+              priority: HIGH
+      discovery_rules:
+        - uuid: 548e9bb4017840a6a6f950b69fa7279c
+          name: 'Node Disk Capacity and Usage'
+          type: DEPENDENT
+          key: longhorn.disk.capacity.usage.bytes
+          enabled_lifetime_type: DISABLE_NEVER
+          item_prototypes:
+            - uuid: ca169cd1ba8a49ef84377222e06f8df1
+              name: 'Capacity of [Disk:{#DISK} Node:{#NODE}]'
+              type: DEPENDENT
+              key: 'longhorn.disk.capacity[{#DISK},{#NODE}]'
+              value_type: FLOAT
+              units: B
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'longhorn_disk_capacity_bytes{disk="{#DISK}",node="{#NODE}"}'
+                    - value
+                    - ''
+              master_item:
+                key: longhorn.state.metrics
+            - uuid: bca1fc6265114992808879503be850f6
+              name: 'Longhorn Node Disk Usage Percentage [Disk:{#DISK} Node:{#NODE}]'
+              type: CALCULATED
+              key: 'longhorn.disk.usage.pct[{#DISK},{#NODE}]'
+              delay: 5m
+              value_type: FLOAT
+              units: '%'
+              params: |
+                100*
+                last(//longhorn.disk.usage[{#DISK},{#NODE}]) / last(//longhorn.disk.capacity[{#DISK},{#NODE}])
+            - uuid: be7d7075d99a4ac59d6ab7937b637419
+              name: 'Usage of [Disk:{#DISK} Node:{#NODE}]'
+              type: DEPENDENT
+              key: 'longhorn.disk.usage[{#DISK},{#NODE}]'
+              value_type: FLOAT
+              units: B
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'longhorn_disk_usage_bytes{disk="{#DISK}",node="{#NODE}"}'
+                    - value
+                    - ''
+              master_item:
+                key: longhorn.state.metrics
+          master_item:
+            key: longhorn.state.metrics
+          lld_macro_paths:
+            - lld_macro: '{#DISK}'
+              path: $.labels.disk
+            - lld_macro: '{#NODE}'
+              path: $.labels.node
+            - lld_macro: '{#VALUE}'
+              path: $.value
+          preprocessing:
+            - type: PROMETHEUS_TO_JSON
+              parameters:
+                - '{__name__=~"longhorn_disk_capacity_bytes"}'
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 3h
+        - uuid: 787bdb3a49044645baeda9ed20f21fe7
+          name: 'Longhorn Node Disk Status'
+          type: DEPENDENT
+          key: longhorn.disk.status
+          enabled_lifetime_type: DISABLE_NEVER
+          item_prototypes:
+            - uuid: 8da98a1dfede4e8ab30cacae6584bfc6
+              name: 'Longhorn disk [{#DISK}] status on [{#NODE}]'
+              type: DEPENDENT
+              key: 'longhorn.disk.status[{#DISK},{#NODE},{#CONDITION}]'
+              value_type: FLOAT
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'longhorn_disk_status{disk="{#DISK}",node="{#NODE}",condition="{#CONDITION}"}'
+                    - value
+                    - ''
+              master_item:
+                key: longhorn.state.metrics
+              trigger_prototypes:
+                - uuid: 481b3648a207475da383b33224cc51bc
+                  expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.disk.status[{#DISK},{#NODE},{#CONDITION}])=0 and "{#CONDITION}" = "ready"'
+                  name: 'Longhorn Disk [{#DISK}] on Node [{#NODE}] is NOT ready'
+                  priority: DISASTER
+                - uuid: 481b3648a207475da383b33224cc51bd
+                  expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.disk.status[{#DISK},{#NODE},{#CONDITION}])=0 and "{#CONDITION}" = "schedulable"'
+                  name: 'Longhorn Disk [{#DISK}] on Node [{#NODE}] is not schedulable (disk pressure)'
+                  priority: HIGH
+          master_item:
+            key: longhorn.state.metrics
+          lld_macro_paths:
+            - lld_macro: '{#CONDITION_REASON}'
+              path: $.labels.condition_reason
+            - lld_macro: '{#CONDITION}'
+              path: $.labels.condition
+            - lld_macro: '{#DISK}'
+              path: $.labels.disk
+            - lld_macro: '{#METRIC}'
+              path: '$[''name'']'
+            - lld_macro: '{#NODE}'
+              path: $.labels.node
+            - lld_macro: '{#VALUE}'
+              path: $.value
+          preprocessing:
+            - type: PROMETHEUS_TO_JSON
+              parameters:
+                - '{__name__=~"longhorn_disk_status"}'
+        - uuid: 502ec928fb424fb8b7bb22d15b7101b2
+          name: 'Volume Actual Size and Capacity'
+          type: DEPENDENT
+          key: longhorn.volume.size.capacity
+          # Keep-lost-resources 2h (default was 7d). Longhorn reports a volume only from the node it is
+          # attached to; each of the 3 per-node Zabbix hosts LLD-discovers volumes independently. When a
+          # volume moves node (pod reschedule/OOM), the source node's per-node items go stale and their
+          # triggers freeze OPEN. 2h auto-deletes those stragglers (a volume move finishes in minutes)
+          # instead of lingering a week. Longhorn re-discovers real volumes every scrape. (2026-07-22)
+          lifetime: 2h
+          enabled_lifetime_type: DISABLE_NEVER
+          item_prototypes:
+            - uuid: 0309846a591645e791eebf60a98a0fa8
+              name: 'Longhorn Volume Usage Percentage [PVC: {#PVC},Namespace: {#PVCNS}]'
+              type: CALCULATED
+              key: 'longhorn.volume.usage.pct[{#PVC},{#PVCNS}]'
+              delay: 5m
+              value_type: FLOAT
+              units: '%'
+              params: |
+                100*
+                last(//longhorn_volume_actual_size[{#PVC},{#PVCNS}]) / last(//longhorn_volume_capacity_bytes[{#PVC},{#PVCNS}])
+              trigger_prototypes:
+                - uuid: a4b09e2216f34e51b20ac97ed04b1bf9
+                  expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.usage.pct[{#PVC},{#PVCNS}])>=120 and last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.usage.pct[{#PVC},{#PVCNS}])<140'
+                  name: 'Longhorn Volume [{#PVC}] ({#PVCNS}) usage is over 120%'
+                  priority: WARNING
+                  manual_close: 'YES'
+                - uuid: 2787f0964c294c5c81dded84ec9bd03a
+                  expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.usage.pct[{#PVC},{#PVCNS}])>=140 and last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.usage.pct[{#PVC},{#PVCNS}])<150'
+                  name: 'Longhorn Volume [{#PVC}] ({#PVCNS}) usage is over 140%'
+                  priority: HIGH
+                  manual_close: 'YES'
+                - uuid: 27a52665e7824124b9c70aff72674c28
+                  expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.usage.pct[{#PVC},{#PVCNS}])>=150'
+                  name: 'Longhorn Volume [{#PVC}] ({#PVCNS}) usage is over 150% (snapshot bloat possible)'
+                  priority: DISASTER
+                  manual_close: 'YES'
+            - uuid: 1e9789ec12584df6a0f240b97afcd0b5
+              name: 'Actual Size of PVC {#PVC} in Namespace {#PVCNS}'
+              type: DEPENDENT
+              key: 'longhorn_volume_actual_size[{#PVC},{#PVCNS}]'
+              value_type: FLOAT
+              units: B
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'longhorn_volume_actual_size_bytes{node="{#NODE}",pvc="{#PVC}",pvc_namespace="{#PVCNS}",volume="{#VOLUME}"}'
+                    - value
+                    - ''
+              master_item:
+                key: longhorn.state.metrics
+            - uuid: f8ded7270fe04c49a8fe9af0244d0c60
+              name: 'Capacity of PVC {#PVC} in Namespace {#PVCNS}'
+              type: DEPENDENT
+              key: 'longhorn_volume_capacity_bytes[{#PVC},{#PVCNS}]'
+              value_type: FLOAT
+              units: B
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'longhorn_volume_capacity_bytes{node="{#NODE}",pvc="{#PVC}",pvc_namespace="{#PVCNS}",volume="{#VOLUME}"}'
+                    - value
+                    - ''
+              master_item:
+                key: longhorn.state.metrics
+          master_item:
+            key: longhorn.state.metrics
+          lld_macro_paths:
+            - lld_macro: '{#METRIC}'
+              path: '$[''name'']'
+            - lld_macro: '{#NODE}'
+              path: $.labels.node
+            - lld_macro: '{#PVCNS}'
+              path: '$.labels[''pvc_namespace'']'
+            - lld_macro: '{#PVC}'
+              path: $.labels.pvc
+            - lld_macro: '{#VALUE}'
+              path: $.value
+            - lld_macro: '{#VOLUME}'
+              path: $.labels.volume
+          preprocessing:
+            - type: PROMETHEUS_TO_JSON
+              parameters:
+                - '{__name__=~"longhorn_volume_actual_size_bytes"}'
+        - uuid: 0397b5f69d5f41e0b35023821ae7e2ac
+          name: 'Longhorn Volume Status'
+          type: DEPENDENT
+          key: longhorn.volume.status
+          # Keep-lost-resources 2h (default was 7d) — same reason as 'Volume Actual Size and Capacity':
+          # stale per-node items for volumes that moved off this node froze triggers open for days. (2026-07-22)
+          lifetime: 2h
+          enabled_lifetime_type: DISABLE_NEVER
+          item_prototypes:
+            - uuid: 65b61e0bc1074db6b68528b459b624cd
+              name: 'Longhorn Volume Status [PVC: {#PVC}]'
+              type: DEPENDENT
+              key: 'longhorn.volume.status[{#PVC},{#PVCNS}]'
+              value_type: FLOAT
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'longhorn_volume_robustness{node="{#NODE}",pvc="{#PVC}",pvc_namespace="{#PVCNS}",volume="{#VOLUME}"}'
+                    - value
+                    - ''
+              master_item:
+                key: longhorn.state.metrics
+              trigger_prototypes:
+                - uuid: 1b543670f99d4e04ba9e593f6b1a058d
+                  expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.status[{#PVC},{#PVCNS}])=2'
+                  name: 'Longhorn Volume [{#PVC}] on [{#PVCNS}] is degraded'
+                  priority: WARNING
+                  manual_close: 'YES'
+                - uuid: 6c4374f4c6cd40449ea9004763f223a2
+                  expression: 'last(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.status[{#PVC},{#PVCNS}])=3'
+                  name: 'Longhorn Volume [{#PVC}] on [{#PVCNS}] is faulted'
+                  priority: DISASTER
+                  manual_close: 'YES'
+                - uuid: 4459c54c954e47818592a6c8af54517c
+                  # unknown(0) = volume DETACHED, or the per-node item went stale/UNSUPPORTED when the
+                  # volume moved nodes. Neither is a fault. min(...,15m)=0 requires it sustained WITH fresh
+                  # data, so transient reschedules AND frozen-stale items don't fire; INFO because
+                  # detached != degraded/faulted. (2026-07-20 false-alert fix)
+                  expression: 'min(/Kubernetes Longhorn state by Zabbix Proxy/longhorn.volume.status[{#PVC},{#PVCNS}],15m)=0'
+                  name: 'Longhorn Volume [{#PVC}] on [{#PVCNS}] is unknown/detached'
+                  priority: INFO
+                  manual_close: 'YES'
+          master_item:
+            key: longhorn.state.metrics
+          lld_macro_paths:
+            - lld_macro: '{#NODE}'
+              path: $.labels.node
+            - lld_macro: '{#PVCNS}'
+              path: $.labels.pvc_namespace
+            - lld_macro: '{#PVC}'
+              path: $.labels.pvc
+            - lld_macro: '{#VALUE}'
+              path: $.value
+            - lld_macro: '{#VOLUME}'
+              path: $.labels.volume
+          preprocessing:
+            - type: PROMETHEUS_TO_JSON
+              parameters:
+                - '{__name__=~"longhorn_volume_robustness"}'
+      macros:
+        - macro: '{$LONGHORN.API.URL}'
+          description: 'Longhorn-manager metrics API URL'
